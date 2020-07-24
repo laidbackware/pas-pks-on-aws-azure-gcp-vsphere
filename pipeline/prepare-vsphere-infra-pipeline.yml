@@ -100,7 +100,7 @@ jobs:
             -   in_parallel:
                 -   get: configuration
                     trigger: true
-                    passed: [ "pave-vsphere" ]
+                    # passed: [ "pave-vsphere" ]
                 -   get: nsxt-ansible
                 -   get: nsxt-ova
             -   task: deploy-nsxt-ansible

@@ -21,7 +21,7 @@ ip_pools:
     subnets:
     -   allocation_ranges:
         -   start: "172.16.1.2"
-        end: "172.16.1.254"
+            end: "172.16.1.254"
         cidr: "172.16.1.0/24"
 
 edges:

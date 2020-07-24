@@ -41,7 +41,7 @@
         wait_time: 50
     
     - name: Wait 60 seconds for the API to settle
-      pause: seconds=06
+      pause: seconds=60
       when: result_manager.changed
 
     - name: Create ip pool
