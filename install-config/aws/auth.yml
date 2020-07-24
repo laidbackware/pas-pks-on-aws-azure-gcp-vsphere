@@ -1,0 +1,4 @@
+---
+username: ((om_login.username))
+password: ((om_login.password))
+decryption-passphrase: ((decryption_passphrase))

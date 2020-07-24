@@ -1,0 +1,31 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source: 
+    repository: laidbackware/ansible-aio
+    tag: latest
+
+inputs:
+- name: config
+- name: nsxt-ova
+- name: nsxt-ansible
+# - name: yq
+
+params:
+  FOUNDATION:
+  NSX_PASSWORD:
+  PARENT_VCENTER_USERNAME:
+  PARENT_VCENTER_PASSWORD:
+  NESTED_VCENTER_PASSWORD:
+  NSX_API_PUBLIC_KEY:
+  NSX_API_PRIVATE_KEY:
+  PKS_USER_USER_PUBLIC_KEY:
+  PKS_USER_USER_PRIVATE_KEY:
+  ANSIBLE_FORCE_COLOR: true
+
+# outputs:
+# - name: ansible-output
+
+run:
+  path: config/tasks/pave-nsxt-ansible/task.sh

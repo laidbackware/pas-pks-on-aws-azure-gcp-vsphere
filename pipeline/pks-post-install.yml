@@ -1,0 +1,142 @@
+---
+anchors:
+-   interpolate-creds: &interpolate-creds
+        image: platform-automation-image
+        file: platform-automation-tasks/tasks/credhub-interpolate.yml
+        params:
+            CREDHUB_CLIENT: ((credhub_username))
+            CREDHUB_SECRET: ((credhub_password))
+            CREDHUB_SERVER: ((credhub_url))
+            CREDHUB_CA_CERT: ((credhub_ca_cert))
+            PREFIX: '/concourse/prod'
+            INTERPOLATION_PATHS: "vars"
+            SKIP_MISSING: true
+        input_mapping:
+            files: configuration
+        output_mapping:
+            interpolated-files: interpolated-creds
+
+-   prepare-tasks-with-secrets: &prepare-tasks-with-secrets
+        image: platform-automation-image
+        file: platform-automation-tasks/tasks/prepare-tasks-with-secrets.yml
+        input_mapping:
+            tasks: platform-automation-tasks
+            config: configuration
+            # vars: configuration
+        output_mapping:
+            tasks: platform-automation-tasks
+        params:
+            CONFIG_PATHS: config/download-config config/install-config/((foundation))
+            VARS_PATHS: config/vars # required only if using vars
+
+
+
+-   s3-common: &s3-common
+        access_key_id: ((s3_access_key_id))
+        secret_access_key: ((s3_secret_access_key))
+        disable_ssl: ((s3_disable_ssl))
+        use_v2_signing: ((s3_use_v2_signing))
+        region_name: ((s3_region_name))
+        endpoint: ((s3_endpoint))
+
+- download-product-common: &download-product-common
+        image: platform-automation-image
+        input_mapping:
+            config: configuration
+        file: platform-automation-tasks/tasks/download-product.yml
+
+- add-terraform-yaml: &add-terraform-yaml
+    image: platform-automation-image
+    config:
+      platform: linux
+      inputs: 
+      - name: configuration
+      - name: tf-output-yaml
+      outputs:
+      - name: configuration
+      run:
+        path: sh
+        args:
+          - -exc
+          - cp tf-output-yaml/tf-output-*.yml configuration/vars/((foundation))/tf-output.yml
+
+
+resources:
+-   name: platform-automation-tasks
+    type: s3
+    source:
+        <<: *s3-common
+        bucket: platform-automation
+        regexp: platform-automation-tasks-(.*).zip
+
+-   name: platform-automation-image
+    type: s3
+    source:
+        <<: *s3-common
+        bucket: platform-automation
+        regexp: platform-automation-image-(.*).tgz
+
+-   name: configuration
+    type: git
+    source:
+        private_key: ((git_private_key.private_key))
+        uri: git@github.com:laidbackware/aws-pks-pas.git
+        branch: ((branch))
+
+-   name: yq
+    type: s3
+    source:
+      <<: *s3-common
+      bucket: ((buckets.software))
+      regexp: yq-(.*)
+
+-   name: uaa-cli
+    type: s3
+    source:
+        <<: *s3-common
+        bucket: software
+        regexp: uaa-linux-amd64-(.*)
+
+-   name: pks-cli-linux
+    type: s3
+    source:
+        <<: *s3-common
+        bucket: software
+        regexp: \[pivotal-container-service,(.*)\]pks-linux-amd64-(.*)-build.(.*)
+
+
+jobs:
+-   name: setup-uaa
+    plan:
+    -   in_parallel:
+        -   get: platform-automation-image
+            params:
+                unpack: true
+        -   get: platform-automation-tasks
+            params:
+                unpack: true
+        -   get: configuration
+        -   get: uaa-cli
+        -   get: yq
+        -   get: pks-cli-linux
+    -   task: set-uaa-user
+        image: platform-automation-image
+        params:
+            OM_USERNAME: ((om_login.username))
+            OM_PASSWORD: ((om_login.password))
+            PKS_CLUSTER_ADMIN_USERNAME: ((pks_cluster_admin_user.username))
+            PKS_CLUSTER_ADMIN_PASSWORD: ((pks_cluster_admin_user.password))
+            FOUNDATION: ((foundation))
+        input_mapping:
+            config: configuration
+        file: configuration/tasks/uaa-setup/task.yml
+    -   task: create-pks-cluster
+        image: platform-automation-image
+        params:
+            PKS_CLUSTER_ADMIN_USERNAME: ((pks_cluster_admin_user.username))
+            PKS_CLUSTER_ADMIN_PASSWORD: ((pks_cluster_admin_user.password))
+            FOUNDATION: ((foundation))
+        input_mapping:
+            config: configuration
+        file: configuration/tasks/pks-create-cluster/task.yml
+

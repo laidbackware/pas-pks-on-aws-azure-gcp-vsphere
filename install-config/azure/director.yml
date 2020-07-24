@@ -1,0 +1,104 @@
+iaas-configurations:
+- additional_cloud_properties: {}
+  availability_mode: availability_zones
+  bosh_storage_account_name: ((bosh_root_storage_account.value))
+  client_id: ((client_id.value))
+  client_secret: ((client_secret.value))
+  cloud_storage_type: managed_disks
+  default_security_group: ((bosh_deployed_vms_security_group_name.value))
+  deployed_cloud_storage_type: managed_disks
+  environment: AzureCloud
+  name: default
+  resource_group_name: ((pcf_resource_group_name.value))
+  ssh_private_key: ((ops_manager_ssh_private_key.value))
+  ssh_public_key: ((ops_manager_ssh_public_key.value))
+  storage_account_type: Premium_LRS
+  subscription_id: ((subscription_id.value))
+  tenant_id: ((tenant_id.value))
+network-assignment:
+  network:
+    name: infrastructure
+  other_availability_zones: []
+  singleton_availability_zone:
+    name: zone-1
+networks-configuration:
+  icmp_checks_enabled: false
+  networks:
+  - name: infrastructure
+    subnets:
+    - iaas_identifier: ((network_name.value))/((infrastructure_subnet_name.value))
+      cidr: ((infrastructure_subnet_cidr.value))
+      dns: 168.63.129.16
+      gateway: ((infrastructure_subnet_gateway.value))
+      reserved_ip_ranges: ((infrastructure_reserved_ip_ranges.value)) ##
+      availability_zone_names:
+      - zone-1
+      - zone-2
+      - zone-3
+  - name: pks
+    subnets:
+    - iaas_identifier: ((network_name.value))/((pks_subnet_name.value))
+      cidr: ((pks_subnet_cidr.value))
+      dns: 168.63.129.16
+      gateway: ((pks_subnet_gateway.value))
+      reserved_ip_ranges: ((pks_reserved_ip_ranges.value)) ##
+      availability_zone_names:
+      - zone-1
+      - zone-2
+      - zone-3
+properties-configuration:
+  director_configuration:
+    blobstore_type: local
+    bosh_recreate_on_next_deploy: false
+    bosh_recreate_persistent_disks_on_next_deploy: false
+    database_type: internal
+    director_worker_count: 5
+    encryption:
+      keys: []
+      providers: []
+    hm_emailer_options:
+      enabled: false
+    hm_pager_duty_options:
+      enabled: false
+    identification_tags: {}
+    job_configuration_on_tmpfs: false
+    keep_unreachable_vms: false
+    local_blobstore_options:
+      enable_signed_urls: false
+    ntp_servers_string: ((ntp_servers_string))
+    post_deploy_enabled: true
+    resurrector_enabled: true
+    retry_bosh_deploys: false
+    skip_director_drain: false
+  dns_configuration:
+    excluded_recursors: []
+    handlers: []
+  security_configuration:
+    generate_vm_passwords: true
+    opsmanager_root_ca_trusted_certs: true
+  syslog_configuration:
+    enabled: false
+resource-configuration:
+  compilation:
+    additional_networks: []
+    additional_vm_extensions: []
+    elb_names: []
+    instance_type:
+      id: automatic
+    instances: automatic
+    internet_connected: false
+    swap_as_percent_of_memory_size: automatic
+  director:
+    additional_networks: []
+    additional_vm_extensions: []
+    elb_names: []
+    instance_type:
+      id: automatic
+    instances: automatic
+    internet_connected: false
+    persistent_disk:
+      size_mb: automatic
+    swap_as_percent_of_memory_size: automatic
+vmextensions-configuration: []
+vmtypes-configuration: {}
+

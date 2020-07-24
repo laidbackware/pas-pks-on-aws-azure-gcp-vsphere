@@ -1,0 +1,20 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+
+params:
+  OM_USERNAME: 
+  OM_PASSWORD:  
+  OM_TARGET:  
+  ADDON_NAME: 
+  FOUNDATION: 
+  OM_SKIP_SSL_VALIDATION: true
+ 
+inputs:
+- name: tf-output-yaml
+- name: addon
+- name: configuration
+
+run:
+  path: configuration/tasks/configure-bosh-addon/task.sh

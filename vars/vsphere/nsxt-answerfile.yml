@@ -1,0 +1,114 @@
+nsx_manager:
+    hostname: "192.168.0.193"
+    username: "admin"
+    password: "{{ lookup('env', 'NSX_PASSWORD') }}"
+    validate_certs: False
+    ip_address: "192.168.0.193"
+    netmask: "255.255.255.0"
+    gateway: "192.168.0.1"
+    # Deployment details
+    vcenter: "192.168.0.113"
+    vcenter_user: "{{ lookup('env', 'PARENT_VCENTER_USERNAME') }}"
+    vcenter_passwd: "{{ lookup('env', 'PARENT_VCENTER_PASSWORD') }}"
+    deployment_size: "small"
+    datacenter: "Home"
+    cluster: "Physical"
+    datastore: "NVME"
+    portgroup: "Net1"
+
+ip_pools:
+-   display_name: tep-pool # This is a non-routable range which is used for the overlay tunnels.
+    subnets:
+    -   allocation_ranges:
+        -   start: "172.16.1.2"
+        end: "172.16.1.254"
+        cidr: "172.16.1.0/24"
+
+edges:
+-   display_name: edge1
+    size: MEDIUM
+    mgmt_ip_address: "192.168.0.194"
+    mgmt_prefix_length: 24
+    mgmt_default_gateway: "192.168.0.1"
+    # vSphere config
+    network_management_name: "net1"
+    network_tep_name: "tep_pg"
+    datastore_name: "datastore1"
+    cluster_name: "compute"
+
+logical_routers:
+-   router_display_name: t0-router
+    edge_cluster_name: edge-cluster-1
+    router_type: TIER0
+    high_availability_mode: ACTIVE_STANDBY
+    # Uplink section
+    transport_zone_name: "tz-vlan"
+    vlan: 0
+    ip_addresses: "192.168.0.195"
+    prefix_length: "24"
+    # Static route section
+    next_hop_ip_address: "192.168.0.1"
+    network: "0.0.0.0/0"
+    administrative_distance: "2" 
+
+### No need to edit below this marker ###
+
+certificates:
+    machine_cert: "((nsx_machine_cert))"
+    pks_super_user: "((nsx_super_user))"
+
+transportzones:
+-   display_name: "tz-overlay"
+    transport_type: "OVERLAY"
+    host_switch_name: "sw_over"
+    description: "Overlay Transport Zone"
+-   display_name: "tz-vlan"
+    transport_type: "VLAN"
+    host_switch_name: "sw_vlan"
+    description: "Uplink Transport Zone"
+
+uplink_profiles:
+-   display_name: tep-profile
+    mtu: 1600
+    teaming:
+        active_list:
+        -   uplink_name: "uplink-1"
+            uplink_type: PNIC
+        policy: FAILOVER_ORDER
+    transport_vlan: 0
+-   display_name: uplink-profile
+    mtu: 1500
+    teaming:
+        active_list:
+        -   uplink_name: "uplink-1"
+            uplink_type: PNIC
+        policy: FAILOVER_ORDER
+    transport_vlan: 0
+
+edge_cluster_name: "edge-cluster-1"
+edge_cluster_members:
+-   transport_node_name: edge1
+
+transport_node_profiles:
+-   display_name: tnp1
+    host_switches:
+    -   host_switch_profiles:
+        -   name: tep-profile
+            type: UplinkHostSwitchProfile
+        host_switch_name: sw_over
+        pnics:
+        -   device_name: vmnic2
+            uplink_name: "uplink-1"
+        ip_assignment_spec:
+            resource_type: StaticIpPoolSpec
+            ip_pool_name: "tep-pool"
+    description: "Cluster node profile"
+    transport_zone_endpoints:
+    -   transport_zone_name: "tz-overlay"
+
+cluster_attach:
+-   display_name: "tnc1"
+    description: "Transport Node Collections 1"
+    compute_manager_name: "vCenter"
+    cluster_name: "compute"
+    transport_node_profile_name: "tnp1"

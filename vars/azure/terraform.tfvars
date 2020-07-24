@@ -1,0 +1,6 @@
+env_name              = "mproud-lab"
+env_short_name        = "mproud"
+location              = "UK South"
+ops_manager_image_uri = "https://opsmanagerwesteurope.blob.core.windows.net/images/ops-manager-2.8.3-build.217.vhd"
+dns_suffix            = "azure.loudnative.net"
+vm_admin_username     = "ubuntu"

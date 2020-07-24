@@ -1,0 +1,4 @@
+om_version: 2.9
+opsman_regex: ^2\.9\.\d+.*$
+opsman_pivnet_glob: "ops-manager-azure-*.yml"
+ntp_servers_string: 0.uk.pool.ntp.org

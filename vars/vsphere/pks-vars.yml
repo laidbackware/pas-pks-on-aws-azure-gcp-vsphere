@@ -1,0 +1,4 @@
+---
+vcenter_vms_folder: pks_vms
+nsx_services_cidr: 10.100.200.0/24
+pks_api_hostname: pks.home.local

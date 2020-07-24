@@ -1,0 +1,165 @@
+az-configuration:
+- name: ((availability_zones.0))
+  iaas_configuration_name: default
+- name: ((availability_zones.1))
+  iaas_configuration_name: default
+- name: ((availability_zones.2))
+  iaas_configuration_name: default
+iaas-configurations:
+- access_key_id: ((cloud_creds.client_id))
+  additional_cloud_properties: {}
+  encrypted: false
+  key_pair_name: ((ops_manager_key_pair_name))
+  name: default
+  region: ((region))
+  secret_access_key: ((cloud_creds.client_secret))
+  security_group: ((platform_vms_security_group_id))
+  ssh_private_key: ((ops_manager_ssh_private_key))
+network-assignment:
+  network:
+    name: management
+  other_availability_zones: []
+  singleton_availability_zone:
+    name: ((availability_zones.0))
+networks-configuration:
+  icmp_checks_enabled: false
+  networks:
+  - name: management
+    subnets:
+    - iaas_identifier: ((management_subnet_ids.0))
+      cidr: ((management_subnet_cidrs.0))
+      dns: 10.0.0.2
+      gateway: ((management_subnet_gateways.0))
+      reserved_ip_ranges: ((management_subnet_reserved_ip_ranges.0))
+      availability_zone_names:
+      - ((availability_zones.0))
+    - iaas_identifier: ((management_subnet_ids.1))
+      cidr: ((management_subnet_cidrs.1))
+      dns: 10.0.0.2
+      gateway: ((management_subnet_gateways.1))
+      reserved_ip_ranges: ((management_subnet_reserved_ip_ranges.1))
+      availability_zone_names:
+      - ((availability_zones.1))
+    - iaas_identifier: ((management_subnet_ids.2))
+      cidr: ((management_subnet_cidrs.2))
+      dns: 10.0.0.2
+      gateway: ((management_subnet_gateways.2))
+      reserved_ip_ranges: ((management_subnet_reserved_ip_ranges.2))
+      availability_zone_names:
+      - ((availability_zones.2))
+  - name: pas
+    subnets:
+    - iaas_identifier: ((pas_subnet_ids.0))
+      cidr: ((pas_subnet_cidrs.0))
+      dns: 10.0.0.2
+      gateway: ((pas_subnet_gateways.0))
+      reserved_ip_ranges: ((pas_subnet_reserved_ip_ranges.0))
+      availability_zone_names:
+      - ((availability_zones.0))
+    - iaas_identifier: ((pas_subnet_ids.1))
+      cidr: ((pas_subnet_cidrs.1))
+      dns: 10.0.0.2
+      gateway: ((pas_subnet_gateways.1))
+      reserved_ip_ranges: ((pas_subnet_reserved_ip_ranges.1))
+      availability_zone_names:
+      - ((availability_zones.1))
+    - iaas_identifier: ((pas_subnet_ids.2))
+      cidr: ((pas_subnet_cidrs.2))
+      dns: 10.0.0.2
+      gateway: ((pas_subnet_gateways.2))
+      reserved_ip_ranges: ((pas_subnet_reserved_ip_ranges.2))
+      availability_zone_names:
+      - ((availability_zones.2))
+  
+  - name: pks
+    subnets:
+    - iaas_identifier: ((pks_subnet_ids.0))
+      cidr: ((pks_subnet_cidrs.0))
+      dns: 10.0.0.2
+      gateway: ((pks_subnet_gateways.0))
+      reserved_ip_ranges: ((pks_subnet_reserved_ip_ranges.0))
+      availability_zone_names:
+      - ((availability_zones.0))
+    - iaas_identifier: ((pks_subnet_ids.1))
+      cidr: ((pks_subnet_cidrs.1))
+      dns: 10.0.0.2
+      gateway: ((pks_subnet_gateways.1))
+      reserved_ip_ranges: ((pks_subnet_reserved_ip_ranges.1))
+      availability_zone_names:
+      - ((availability_zones.1))
+    - iaas_identifier: ((pks_subnet_ids.2))
+      cidr: ((pks_subnet_cidrs.2))
+      dns: 10.0.0.2
+      gateway: ((pks_subnet_gateways.2))
+      reserved_ip_ranges: ((pks_subnet_reserved_ip_ranges.2))
+      availability_zone_names:
+      - ((availability_zones.2))
+
+properties-configuration:
+  director_configuration:
+    blobstore_type: local
+    bosh_recreate_on_next_deploy: false
+    bosh_recreate_persistent_disks_on_next_deploy: false
+    database_type: internal
+    director_worker_count: 5
+    encryption:
+      keys: []
+      providers: []
+    hm_emailer_options:
+      enabled: false
+    hm_pager_duty_options:
+      enabled: false
+    identification_tags: {}
+    job_configuration_on_tmpfs: false
+    keep_unreachable_vms: false
+    local_blobstore_options:
+      enable_signed_urls: false
+    ntp_servers_string: 0.amazon.pool.ntp.org, 1.amazon.pool.ntp.org, 2.amazon.pool.ntp.org,
+      3.amazon.pool.ntp.org
+    post_deploy_enabled: true
+    resurrector_enabled: true
+    retry_bosh_deploys: false
+    skip_director_drain: false
+  dns_configuration:
+    excluded_recursors: []
+    handlers: []
+  security_configuration:
+    generate_vm_passwords: true
+    opsmanager_root_ca_trusted_certs: true
+    trusted_certificates:     #((pas_cert.ca))
+  syslog_configuration:
+    enabled: false
+resource-configuration:
+  compilation:
+    additional_networks: []
+    additional_vm_extensions: []
+    elb_names: []
+    instance_type:
+      id: automatic
+    instances: automatic
+    internet_connected: false
+    swap_as_percent_of_memory_size: automatic
+  director:
+    additional_networks: []
+    additional_vm_extensions: []
+    elb_names: []
+    instance_type:
+      id: automatic
+    instances: automatic
+    internet_connected: false
+    persistent_disk:
+      size_mb: automatic
+    swap_as_percent_of_memory_size: automatic
+vmextensions-configuration:
+  - name: web-lb-security-groups
+    cloud_properties:
+      security_groups:
+      - ((web_lb_security_group_name))
+      - ((platform_vms_security_group_name))
+      target_groups: ((web_target_group_names))
+  - name: om-instance-profile
+    cloud_properties:
+      iam_instance_profile: pas-pks-ops-manager
+
+vmtypes-configuration: {}
+

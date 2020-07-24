@@ -1,0 +1,333 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  gather_facts: False
+  tasks:
+    - name: deploy NSX Manager OVA
+      nsxt_deploy_ova:
+        ovftool_path: "/usr/bin"
+        #folder: ''
+        datacenter: "{{ nsx_manager.datacenter }}"
+        datastore: "{{ nsx_manager.datastore }}"
+        portgroup: "{{ nsx_manager.portgroup }}"
+        cluster: "{{ nsx_manager.cluster }}"
+        vmname: "{{ environment_tag }}-nsxt-manager"
+        hostname: "{{ nsx_manager.hostname }}"
+        dns_server: "{{ dns1 }}"
+        dns_domain: "{{ domain }}"
+        ntp_server: "{{ nested_vcenter.ntp }}"
+        gateway: "{{ nsx_manager.gateway }}"
+        ip_address: "{{ nsx_manager.ip_address }}"
+        netmask: "{{ nsx_manager.netmask }}"
+        admin_password: "{{ nsx_manager.hostname }}"
+        cli_password: "{{ nsx_manager.password }}"
+        path_to_ova: "{{ manager_path_to_ova }}"
+        ova_file: "{{ manager_ova_file }}"
+        vcenter: "{{ nsx_manager.vcenter }}"
+        vcenter_user: "{{ nsx_manager.vcenter_user }}"
+        vcenter_passwd: "{{ nsx_manager.vcenter_passwd }}"
+        deployment_size: "{{ nsx_manager.deployment_size }}"
+        role: "NSX Manager"
+        allow_ssh_root_login: True
+        ssh_enabled: True
+      register: result_manager
+
+    - name: Check manager status
+      nsxt_manager_status:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        wait_time: 50
+    
+    - name: Wait 60 seconds for the API to settle
+      pause: seconds=06
+      when: result_manager.changed
+
+    - name: Create ip pool
+      nsxt_ip_pools:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        display_name: "{{ item.display_name }}"
+        subnets: "{{ item.subnets }}"
+        state: present
+      with_items:
+        - "{{ ip_pools }}"
+      retries: 12
+      delay: 10
+      register: result
+      until: "'module_stderr' not in result"
+
+    - name: Create transport zone
+      nsxt_transport_zones:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        resource_type: "TransportZone"
+        display_name: "{{ item.display_name }}"
+        description: "{{ item.description }}"
+        transport_type: "{{ item.transport_type }}"
+        host_switch_name: "{{ item.host_switch_name }}"
+        state: "present"
+      register: result
+      with_items:
+        - "{{ transportzones }}"
+    - debug: var=result.id
+
+    - name: Create uplink profile
+      nsxt_uplink_profiles:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        resource_type: UplinkHostSwitchProfile
+        display_name: "{{ item.display_name }}"
+        mtu: "{{ item.mtu }}"
+        teaming: "{{ item.teaming }}"
+        transport_vlan: "{{ item.transport_vlan }}"
+        state: "present"
+      with_items:
+        - "{{ uplink_profiles }}"    
+
+    - name: Deploy compute manager
+      nsxt_fabric_compute_managers:
+          hostname: "{{ nsx_manager.hostname }}"
+          username: "{{ nsx_manager.username }}"
+          password: "{{ nsx_manager.password }}"
+          validate_certs: False
+          display_name: "vCenter"
+          server: "{{ nested_vcenter.ip }}"
+          origin_type: "vCenter"
+          credential:
+            credential_type: UsernamePasswordLoginCredential
+            username: "{{ nested_vcenter.user }}"
+            password: "{{ nested_vcenter.password }}"
+          state: present
+      retries: 12
+      delay: 10
+      register: result
+      until: result is not failed
+
+    - name: Create transport node profile
+      nsxt_transport_node_profiles:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        resource_type: TransportNodeProfile
+        display_name: "{{ item.display_name}}"
+        description: "{{ item.description}}"
+        host_switch_spec:
+          resource_type: StandardHostSwitchSpec
+          host_switches: "{{ item.host_switches }}"
+        transport_zone_endpoints: "{{ item.transport_zone_endpoints }}"
+        state: present
+      with_items:
+        - "{{ transport_node_profiles }}"
+
+    - name: Attach Transport node profile to cluster
+      nsxt_transport_node_collections:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        display_name: "{{ item.display_name }}"
+        resource_type: "TransportNodeCollection"
+        description: "{{ item.description }}"
+        compute_manager_name: "{{ item.compute_manager_name }}"
+        cluster_name: "{{ item.cluster_name }}"
+        transport_node_profile_name: "{{ item.transport_node_profile_name }}"
+        state: present      
+      with_items:
+        - "{{ cluster_attach }}"
+
+    - name: Create transport node
+      nsxt_transport_nodes:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        display_name: "{{ item.display_name }}"
+        host_switch_spec:
+          resource_type: "StandardHostSwitchSpec"
+          host_switches:
+          - host_switch_profiles:
+            - name: "{{ uplink_profiles[0].display_name }}"
+              type: UplinkHostSwitchProfile
+            host_switch_name: sw_over
+            pnics:
+            - device_name: "fp-eth2"
+              uplink_name: "uplink-1"
+            ip_assignment_spec:
+              resource_type: StaticIpPoolSpec
+              ip_pool_name: "tep-pool"
+          - host_switch_profiles:
+            - name: "{{ uplink_profiles[1].display_name }}"
+              type: UplinkHostSwitchProfile
+            host_switch_name: sw_vlan
+            pnics:
+            - device_name: "fp-eth0"
+              uplink_name: "uplink-1"
+        node_deployment_info:
+          resource_type: EdgeNode
+          deployment_config:
+            form_factor: "{{ item.size }}"
+            node_user_settings:
+              audit_password: "{{ nsx_manager.password }}"
+              audit_username: audit
+              cli_password: "{{ nsx_manager.password }}"
+              cli_username: admin
+              root_password: "{{ nsx_manager.password }}"
+            vm_deployment_config:
+              allow_ssh_root_login: true
+              compute: "{{ item.cluster_name }}"
+              data_networks:
+              - "{{ item.network_management_name }}"
+              - "{{ item.network_tep_name }}"
+              - "{{ item.network_tep_name }}"
+              default_gateway_addresses:
+              - "{{ item.mgmt_default_gateway }}"
+              enable_ssh: true
+              hostname: 192.168.0.184
+              management_network: "{{ item.network_management_name }}"
+              management_port_subnets:
+              - ip_addresses:
+                - "{{ item.mgmt_ip_address }}"
+                prefix_length: "{{ item.mgmt_prefix_length }}"
+              placement_type: VsphereDeploymentConfig
+              storage: "{{ item.datastore_name }}"
+              vc_name: vCenter
+              vc_username: "{{ nested_vcenter.user }}"
+              vc_password: "{{ nested_vcenter.password }}"
+          deployment_type: VIRTUAL_MACHINE
+          display_name: "{{ item.display_name}}"
+        transport_zone_endpoints:
+        - transport_zone_name: "{{ transportzones[0].display_name }}"
+        - transport_zone_name: "{{ transportzones[1].display_name }}"
+        state: present
+      with_items:
+        - "{{ edges }}"
+      register: result_tn  
+
+    - name: Wait 90 seconds for the Transport node to configure
+      pause: seconds=90
+      when: result_tn.changed
+
+    - name: Add edge cluster
+      nsxt_edge_clusters:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        display_name: "{{edge_cluster_name}}"
+        cluster_profile_bindings:
+        - profile_name: nsx-default-edge-high-availability-profile
+          resource_type: EdgeHighAvailabilityProfile
+        members: "{{ edge_cluster_members }}"
+        state: present
+      retries: 12
+      delay: 10
+      # until: "'module_stderr' not in result"
+      until: "'rc' not in result"
+
+    - name: Add NSX Machine certificate
+      nsxt_certificates:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        display_name: "nsx_machine_cert"
+        pem_encoded_file: "{{ cert_path }}/nsx.crt"
+        private_key_file: "{{ cert_path }}/nsx.key"
+        state: "present"
+      register: cert_result
+      ignore_errors: yes
+
+    # boiler plate needed because certificates module is not idempotent
+    - fail: msg="Certificate no added"
+      when: "not cert_result.changed and 'already exists' not in cert_result.msg"
+    - debug: msg="Machine certificate added"
+      when:  cert_result.changed
+    - debug: msg="Machine certificate already exists"
+      when:  "'already exists' in cert_result.msg"
+      ignore_errors: yes # result.sg is only generated if not changed
+
+    - name: Assign Machine Cert to API
+      uri:
+        url: https://{{ nsx_manager.hostname }}/api/v1/node/services/http?action=apply_certificate&certificate_id={{ cert_result.result.results[0].id }}
+        user: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        method: POST
+        force_basic_auth: yes
+        validate_certs: False
+        status_code: 202
+      when: cert_result.changed
+
+    - name: Wait 20 seconds for the endpoint to come back
+      pause: seconds=20
+      when: cert_result.changed
+
+    - name: Add PKS Super User certificate
+      nsxt_certificates:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        display_name: "pks-super-user"
+        pem_encoded_file: "{{ cert_path }}/pks-super-user.crt"
+        private_key_file: "{{ cert_path }}/pks-super-user.key"
+        state: "present"
+      register: cert_result
+      retries: 3
+      delay: 10
+      until: "'module_stderr' not in result"
+      ignore_errors: yes
+
+    - fail: msg="super-user certificate no added"
+      when: "not cert_result.changed and 'already exists' not in cert_result.msg"
+    - debug: msg="super-user certificate added"
+      when:  cert_result.changed
+    - debug: msg="super-user certificate already exists"
+      when:  "'already exists' in cert_result.msg"
+      ignore_errors: yes # result.sg is only generated if not changed
+
+    - name: Wait 5 for NSX to catch up
+      pause: seconds=10
+      when: cert_result.changed
+
+    - name: Register a name-certificate combination
+      nsxt_principal_identities:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        display_name: "pks-super-user"
+        name: "pks-super-user"
+        node_id: "node-1"
+        role: "enterprise_admin"
+        certificate_name: "pks-super-user"
+        state: "present"
+      register: pi_result
+      retries: 3
+      delay: 10
+      # until: "'module_stderr' not in result"
+      until: "'rc' not in result"
+      ignore_errors: yes
+      #when: cert_result.changed
+
+    - fail: msg="super-user not added"
+      when: "not pi_result.changed and 'already exists' not in pi_result.msg"
+    - debug: msg="super-user added"
+      when:  pi_result.changed
+    - debug: msg="super-user already exists"
+      when:  "'already exists' in pi_result.msg"
+      ignore_errors: yes # result.sg is only generated if not changed
+
+ ##TODO
+
+ ##Improvement
+ # Investigate collapsing edge creation and transport node into a single section. This should work.
+ # Check why IP pool updates even if not changed. After ip claim this will likely error.

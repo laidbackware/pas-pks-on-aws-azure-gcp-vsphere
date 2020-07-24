@@ -1,0 +1,10 @@
+product: pks
+foundation: vsphere
+iaas_stemcell: vsphere
+# om_version: 2.8
+ntp_servers_string: 0.uk.pool.ntp.org
+product_version_regex: ^1\.8\..*$
+
+vcenter_vms_folder: pks_vms
+nsx_services_cidr: 10.100.200.0/24
+pks_api_hostname: pks.home.local

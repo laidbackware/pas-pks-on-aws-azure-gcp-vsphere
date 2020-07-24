@@ -1,0 +1,89 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  gather_facts: False
+  tasks:
+    - name: Create T0 router
+      nsxt_logical_routers:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        display_name: "{{ item.router_display_name }}"
+        edge_cluster_name: "{{ item.edge_cluster_name }}"
+        router_type: "{{ item.router_type}}"
+        high_availability_mode: "{{ item.high_availability_mode }}"
+        state: "present"
+      with_items:
+        - "{{ logical_routers }}"  
+    
+    - name: Add Static Routes on T0 Logical Router
+      nsxt_logical_router_static_routes:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        logical_router_name: "{{ item.router_display_name }}"
+        next_hops:
+        - administrative_distance: "{{ item.administrative_distance }}"
+          ip_address: "{{ item.next_hop_ip_address }}"
+        network: "{{ item.network }}"
+        state: "present" 
+      with_items:
+        - "{{logical_routers }}"
+
+    - name: Create logical switch
+      nsxt_logical_switches:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        display_name: "ls-{{ item.router_display_name }}"
+        replication_mode: SOURCE
+        admin_state: UP
+        transport_zone_name: "{{ item.transport_zone_name }}"
+        state: "present" 
+        vlan: "{{ item.vlan }}"
+      with_items:
+        - "{{logical_routers }}"
+
+# Task below are not idempotent due to module implementation
+    - name: Create a Logical Port for T0 uplinks
+      nsxt_logical_ports:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        display_name: "lp-{{ item.router_display_name }}-uplink"
+        logical_switch_name: "ls-{{ item.router_display_name }}"
+        admin_state: "UP"
+        state: "present"
+      ignore_errors: yes
+      register: result_lp_uplink
+      with_items:
+        - "{{ logical_routers }}"
+
+    - name: Create logical router port for T0 uplinks
+      nsxt_logical_router_ports:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        display_name: "{{ item.0.router_display_name }}-uplink"
+        resource_type: "LogicalRouterUpLinkPort"
+        logical_router_name: "{{ item.0.router_display_name }}"
+        linked_logical_switch_port_id:
+          target_type: "LogicalPort"
+          target_display_name: "lp-{{ item.0.router_display_name }}-uplink"
+          target_id: "{{ item.1['id'] }}" # TODO Only supports single uplink
+        edge_cluster_member_index:
+          0
+        subnets:
+        - ip_addresses:
+          - "{{ item.0.ip_addresses}}"
+          prefix_length: "{{ item.0.prefix_length }}"
+        state: "present"
+      ignore_errors: yes
+      with_together:
+        - "{{ logical_routers}}"
+        - "{{ result_lp_uplink.results }}"

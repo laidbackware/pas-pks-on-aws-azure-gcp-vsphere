@@ -1,0 +1,6 @@
+product: pas
+foundation: aws
+iaas_stemcell: aws
+# om_version: 2.9
+ntp_servers_string: 0.uk.pool.ntp.org
+product_version_regex: ^2\.[9]\..*$

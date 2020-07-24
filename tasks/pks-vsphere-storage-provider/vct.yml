@@ -1,0 +1,9 @@
+volumeClaimTemplates:
+  - metadata:
+  	name: test-template
+	spec:
+  	accessModes: ["ReadWriteOnce"]
+      storageClassName: "vsphere-thin"
+  	resources:
+    	requests:
+      	storage: 10Gi

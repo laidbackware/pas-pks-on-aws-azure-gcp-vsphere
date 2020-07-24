@@ -1,0 +1,24 @@
+---
+platform: linux
+image_resource:
+    type: docker-image
+    source: 
+        repository: laidbackware/ansible-aio
+        tag: latest
+    # source: 
+    #     repository: hashicorp/terraform
+    #     tag: 0.11.14
+inputs:
+- name: config
+params:
+    OUTPUT_FILE_NAME:
+        # - Required
+    DOWNLOAD_LINK: 
+    # - Required
+    VERSION_CHECK_COMMAND: 
+        # - Required
+outputs:
+- name: downloaded-product
+
+run:
+    path: config/tasks/download-with-wget/task.sh

@@ -1,0 +1,19 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+
+params:
+  PKS_CLUSTER_ADMIN_USERNAME:
+  # - Required
+  PKS_CLUSTER_ADMIN_PASSWORD:
+  # - Required
+  FOUNDATION:
+
+inputs:
+- name: config
+- name: pks-cli-linux
+- name: yq
+
+run:
+  path: config/tasks/pks-create-cluster/task.sh

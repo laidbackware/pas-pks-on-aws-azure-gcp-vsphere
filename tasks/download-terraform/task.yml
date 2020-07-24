@@ -1,0 +1,15 @@
+---
+platform: linux
+image_resource:
+    type: docker-image
+    source: 
+        repository: laidbackware/ansible-aio
+        tag: latest
+inputs:
+- name: config
+- name: jq-cli
+outputs:
+- name: downloaded-product
+
+run:
+    path: config/tasks/download-terraform/task.sh

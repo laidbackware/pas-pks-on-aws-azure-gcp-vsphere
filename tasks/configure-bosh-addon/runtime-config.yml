@@ -1,0 +1,11 @@
+releases:
+  - name: ((addon_name))-boshrelease
+    version: ((version))
+addons:
+  - name: ((addon_name))-agent-xenial
+    jobs:
+      - name: ((addon_name))-agent
+        release: ((addon_name))-boshrelease
+    include:
+      stemcell:
+        - os: ubuntu-xenial

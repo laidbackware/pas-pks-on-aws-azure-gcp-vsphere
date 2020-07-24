@@ -1,0 +1,18 @@
+---
+# stemcell-iaas: vmware
+
+## Required unless `s3-auth-method` is `iam`
+s3_access_key_id: minio
+s3_disable_ssl: true
+s3_use_v2_signing: true
+s3_region_name: None
+s3_endpoint: 192.168.0.3:9080
+buckets:
+  pivnet_products: pivnet-downloads
+  installation: installation
+  platform_automation: platform-automation
+  opsman_state: opsman-state
+  terraform_state: terraform-state
+  software: software
+  vmware_products: vmware-products
+  bosh_addons: bosh-addons

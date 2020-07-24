@@ -1,0 +1,318 @@
+---
+anchors:
+-   prepare-tasks-with-secrets: &prepare-tasks-with-secrets
+        image: platform-automation-image
+        file: platform-automation-tasks/tasks/prepare-tasks-with-secrets.yml
+        input_mapping:
+            tasks: platform-automation-tasks
+            config: configuration
+        output_mapping:
+            tasks: platform-automation-tasks
+        params:
+            CONFIG_PATHS: config/download-config config/install-config/((foundation))
+            VARS_PATHS: config/vars # required only if using vars
+
+-   s3-common: &s3-common
+        access_key_id: ((s3_access_key_id))
+        secret_access_key: ((s3_secret_access_key))
+        disable_ssl: ((s3_disable_ssl))
+        use_v2_signing: ((s3_use_v2_signing))
+        region_name: ((s3_region_name))
+        endpoint: ((s3_endpoint))
+
+- download-product-common: &download-product-common
+        image: platform-automation-image
+        input_mapping:
+            config: configuration
+        file: platform-automation-tasks/tasks/download-product.yml
+
+- add-terraform-yaml: &add-terraform-yaml
+    image: platform-automation-image
+    config:
+      platform: linux
+      inputs: 
+      - name: configuration
+      - name: tf-output-yaml
+      outputs:
+      - name: configuration
+      run:
+        path: sh
+        args:
+          - -exc
+          - cp tf-output-yaml/tf-output-*.yml configuration/vars/((foundation))/tf-output.yml
+
+resources:
+
+# -   name: pks-product
+#     type: s3
+#     source:
+#         <<: *s3-common
+#         bucket: pivnet-downloads
+#         regexp: \[pivotal-container-service,(.*)\]pivotal-container-service-(.*).pivotal
+
+# -   name: pks-stemcell-azure
+#     type: s3
+#     source:
+#         <<: *s3-common
+#         bucket: pivnet-downloads
+#         regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-azure-(.*)
+
+# -   name: pas-stemcell-azure
+#     type: s3
+#     source:
+#         <<: *s3-common
+#         bucket: pivnet-downloads
+#         regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-azure-hyperv-ubuntu-xenial-go_agent.tgz
+
+# -   name: pas-product
+#     type: s3
+#     source:
+#         <<: *s3-common
+#         bucket: pivnet-downloads
+#         regexp: srt-(.*).pivotal
+
+-   name: terraform-template
+    type: s3
+    source:
+        <<: *s3-common
+        bucket: pivnet-downloads
+        regexp: \[elastic-runtime,(.*)\]terraforming-((foundation))-(.*).zip
+
+-   name: platform-automation-tasks
+    type: s3
+    source:
+        <<: *s3-common
+        bucket: platform-automation
+        regexp: platform-automation-tasks-(.*).zip
+
+-   name: platform-automation-image
+    type: s3
+    source:
+        <<: *s3-common
+        bucket: platform-automation
+        regexp: platform-automation-image-(.*).tgz
+
+-   name: configuration
+    type: git
+    source:
+        private_key: ((git_private_key.private_key))
+        uri: git@github.com:laidbackware/aws-pks-pas.git
+        branch: master
+
+-   name: tf-output-yaml
+    type: s3
+    source:
+      <<: *s3-common
+      bucket: ((buckets.terraform_state))
+      regexp: ((foundation))-((product))/tf-output-(.*).yml
+
+# -   name: opsman-state
+#     type: s3
+#     source:
+#       <<: *s3-common
+#       bucket: ((buckets.opsman_state))
+#       regexp: ((foundation))-((product))/om-state-(.*).yml
+#       initial_path: ((foundation))-((product))/om-state-0.yml
+#       initial_content_text: '{}'
+
+# Binaries
+-   name: terraform
+    type: s3
+    source:
+      <<: *s3-common
+      bucket: ((buckets.software))
+      regexp: terraform-0.11.(.*)
+-   name: yq
+    type: s3
+    source:
+      <<: *s3-common
+      bucket: ((buckets.software))
+      regexp: yq-(.*)
+
+jobs:
+-   name: pave-infra
+    serial_groups: [ install ]
+    serial: true
+    plan:
+    -   in_parallel:
+        -   get: platform-automation-image
+            params:
+                unpack: true
+        -   get: platform-automation-tasks
+            params:
+                unpack: true
+        -   get: configuration
+        -   get: terraform-template
+        -   get: terraform
+        -   get: yq
+    -   task: prepare-tasks-with-secrets
+        <<: *prepare-tasks-with-secrets
+
+    -   task: paving-terraform
+        image: platform-automation-image
+        params:
+            AWS_SECRET_ACCESS_KEY: ((s3_secret_access_key))
+            AWS_ACCESS_KEY_ID: ((s3_access_key_id))
+            BUCKET: ((buckets.terraform_state))
+            FOUNDATION: ((foundation))
+            PRODUCT: ((product))
+            ENDPOINT: "http://((s3_endpoint))"
+            TF_VAR_client_id: ((cloud_client.username))
+            TF_VAR_client_secret: ((cloud_client.password))
+            TF_VAR_subscription_id: ((azure_subscription_id))
+            TF_VAR_tenant_id: ((azure_tenant_id))
+        input_mapping:
+            config: configuration
+        file: configuration/tasks/paving-terraform-legacy/task.yml
+
+        ensure:
+          put: tf-output-yaml
+          params:
+            file: generated-tf-output/tf-output-*.yml
+
+    -   task: set-route-53
+        image: platform-automation-image
+        params:
+            AWS_SECRET_ACCESS_KEY: ((s3_secret_access_key))
+            AWS_ACCESS_KEY_ID: ((s3_access_key_id))
+            BUCKET: ((buckets.terraform_state))
+            FOUNDATION: ((foundation))
+            PRODUCT: ((product))
+            ENDPOINT: "http://((s3_endpoint))"
+            TF_VAR_aws_access_key: ((aws_client.username))
+            TF_VAR_aws_secret_key: ((aws_client.password))
+            TF_VAR_hosted_domain: ((aws_domain))
+        input_mapping:
+            config: configuration
+        file: configuration/tasks/terraform-aws-dns/task.yml
+
+-   name: setup-opsman
+    serial_groups: [ install ]
+    serial: true
+    plan:
+    -   in_parallel:
+        -   get: platform-automation-image
+            passed: ["pave-infra"]
+            params:
+                unpack: true
+        -   get: platform-automation-tasks
+            passed: ["pave-infra"]
+            params:
+                unpack: true
+        -   get: configuration
+        -   get: terraform-template
+        -   get: terraform
+        -   get: yq
+        # -   get: opsman-state
+        -   get: tf-output-yaml
+            passed: ["pave-infra"]
+    
+    -   task: add-terraform-yaml
+        <<: *add-terraform-yaml  
+    -   task: prepare-tasks-with-secrets
+        <<: *prepare-tasks-with-secrets
+    
+
+
+    -   task: configure-authentication
+        image: platform-automation-image
+        file: platform-automation-tasks/tasks/configure-authentication.yml
+        attempts: 10
+        params:
+          ENV_FILE: vars/((foundation))/env.yml
+          AUTH_CONFIG_FILE: install-config/((foundation))/auth.yml
+        input_mapping:
+          env: configuration
+          config: configuration
+    
+    -   task: configure-director
+        image: platform-automation-image
+        file: platform-automation-tasks/tasks/configure-director.yml
+        params:
+          ENV_FILE: vars/((foundation))/env.yml
+          DIRECTOR_CONFIG_FILE: install-config/((foundation))/director.yml
+          VARS_FILES: |
+            config/vars/((foundation))/install-pks-vars.yml
+            config/vars/((foundation))/tf-output.yml
+        input_mapping:
+          config: configuration
+          env: configuration
+
+-   name: wipe-env
+    plan:
+    -   in_parallel:
+        -   get: platform-automation-image
+            params:
+                unpack: true
+        -   get: platform-automation-tasks
+            params:
+                unpack: true
+        -   get: configuration
+        -   get: terraform-template
+        -   get: terraform
+        -   get: tf-output-yaml
+        # -   get: opsman-state
+        -   get: yq
+    -   task: add-terraform-yaml
+        <<: *add-terraform-yaml  
+    -   task: prepare-tasks-with-secrets
+        <<: *prepare-tasks-with-secrets
+
+
+    # -   task: delete-installation
+    #     image: platform-automation-image
+    #     file: platform-automation-tasks/tasks/delete-installation.yml
+    #     params:
+    #         ENV_FILE: vars/((foundation))/env.yml
+    #     input_mapping:
+    #         env: configuration
+
+
+    # -   task: delete-vm
+    #     image: platform-automation-image
+    #     file: platform-automation-tasks/tasks/delete-vm.yml
+    #     params:
+    #         ENV_FILE: vars/((foundation))/env.yml
+    #     input_mapping:
+    #         config: configuration
+    #         state: opsman-state
+
+        # ensure: &put-state
+        #     do:
+        #     - put: state
+        #     params:
+        #         file: generated-state/state.yml
+
+    -   task: wipe-set-route-53
+        image: platform-automation-image
+        params:
+            AWS_SECRET_ACCESS_KEY: ((s3_secret_access_key))
+            AWS_ACCESS_KEY_ID: ((s3_access_key_id))
+            BUCKET: ((buckets.terraform_state))
+            FOUNDATION: ((foundation))
+            PRODUCT: ((product))
+            ENDPOINT: "http://((s3_endpoint))"
+            TF_VAR_aws_access_key: ((aws_client.username))
+            TF_VAR_aws_secret_key: ((aws_client.password))
+        input_mapping:
+            config: configuration
+        file: configuration/tasks/wipe-terraform-aws-dns/task.yml
+
+    -   task: wipe-paving-terraform
+        image: platform-automation-image
+        params:
+            AWS_SECRET_ACCESS_KEY: ((s3_secret_access_key))
+            AWS_ACCESS_KEY_ID: ((s3_access_key_id))
+            BUCKET: ((buckets.terraform_state))
+            FOUNDATION: ((foundation))
+            PRODUCT: ((product))
+            ENDPOINT: "http://((s3_endpoint))"
+            TF_VAR_client_id: ((cloud_client.username))
+            TF_VAR_client_secret: ((cloud_client.password))
+            TF_VAR_subscription_id: ((azure_subscription_id))
+            TF_VAR_tenant_id: ((azure_tenant_id))
+        input_mapping:
+            config: configuration
+        file: configuration/tasks/wipe-paving-terraform/task.yml
+
+

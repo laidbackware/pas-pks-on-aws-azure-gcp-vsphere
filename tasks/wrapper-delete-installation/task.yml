@@ -1,0 +1,31 @@
+---
+platform: linux
+
+inputs:
+- name: platform-automation-tasks
+- name: env # contains the env file with target OpsMan Information
+- name: config
+
+params:
+  ENV_FILE: env.yml
+  # - Required
+  # - Filepath of the env config YAML
+  # - The path is relative to root of the `env` input
+
+  IAAS_TYPE:
+  # - Required
+  # - detects whether installation is vsphere
+
+  OM_VARS_ENV: OM_VAR
+  # Used by the wrapper script
+  OM_VAR_decryption_passphrase: none
+  # Used to allow the env file to be interpolated, but not needed
+  OM_VAR_om_login:
+  # Used by the wrapper script to check if the deployment was removed
+  OM_VAR_domain:
+  # Used by the wrapper script to check if the deployment was removed
+  FOUNDATION:
+  # Used by the wrapper script to check if the deployment was removed
+
+run:
+  path: config/tasks/wrapper-delete-installation/task.sh

@@ -1,0 +1,21 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source: 
+    repository: laidbackware/ansible-aio
+
+inputs:
+- name: config
+- name: esxi-iso
+- name: vsphere-ansible-repo
+
+params:
+  NESTED_HOST_PASSWORD:
+  PARENT_VCENTER_USERNAME:
+  PARENT_VCENTER_PASSWORD:
+  NESTED_VCENTER_PASSWORD:
+  ANSIBLE_FORCE_COLOR: true
+  
+run:
+  path: config/tasks/pave-vsphere-esxi-iso/task.sh

@@ -1,0 +1,23 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+
+params:
+  OM_USERNAME:
+  # - Required
+  OM_PASSWORD:
+  # - Required
+  PKS_CLUSTER_ADMIN_USERNAME:
+  # - Required
+  PKS_CLUSTER_ADMIN_PASSWORD:
+  # - Required
+  FOUNDATION:
+
+inputs:
+- name: config
+- name: uaa-cli
+- name: yq
+
+run:
+  path: config/tasks/uaa-setup/task.sh
