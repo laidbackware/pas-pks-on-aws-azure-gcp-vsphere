@@ -39,10 +39,29 @@
         password: "{{ nsx_manager.password }}"
         validate_certs: False
         wait_time: 50
-    
-    - name: Wait 60 seconds for the API to settle
-      pause: seconds=60
-      when: result_manager.changed
+
+    - name: Check all services are up
+      uri:
+        url: https://{{ nsx_manager.hostname }}/api/v1/cluster-manager/status
+        user: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        method: GET
+        force_basic_auth: yes
+        validate_certs: False
+        return_content: yes
+      retries: 60
+      delay: 10
+      register: result
+      until: "'UNKNOWN' not in result.content and 'DOWN' not in result.content"
+
+    - name: Add license
+      nsxt_licenses:
+        hostname: "{{ nsx_manager.hostname }}"
+        username: "{{ nsx_manager.username }}"
+        password: "{{ nsx_manager.password }}"
+        validate_certs: False
+        license_key: "{{nsx_manager.license_key}}"
+        state: present
 
     - name: Create ip pool
       nsxt_ip_pools:
@@ -263,7 +282,7 @@
         method: POST
         force_basic_auth: yes
         validate_certs: False
-        status_code: 202
+        status_code: [200, 202]
       when: cert_result.changed
 
     - name: Wait 20 seconds for the endpoint to come back
@@ -280,22 +299,14 @@
         name: "pks-super-user"
         node_id: "node-1"
         role: "enterprise_admin"
-        certificate_name: "pks-super-user"
         certificate_pem_file: "{{ cert_path }}/pks-super-user.crt"
         state: "present"
       register: pi_result
-      ignore_errors: yes
 
-    - fail: msg="super-user not added"
-      when: "not pi_result.changed and 'ImmutableCertificateEntity' not in pi_result.msg"
-    - debug: msg="super-user added"
-      when:  pi_result.changed
-    - debug: msg="super-user already exists"
-      when:  "'ImmutableCertificateEntity' in pi_result.msg"
-      ignore_errors: yes # result.sg is only generated if not changed
-
- ##TODO
-
- ##Improvement
- # Investigate collapsing edge creation and transport node into a single section. This should work.
- # Check why IP pool updates even if not changed. After ip claim this will likely error.
+# Improvement
+# The following modules show update on a second run where there is no change:
+# - ip pool
+# - t0 static route
+# - Logical switch
+# - Edge cluster
+# - Transport Zone

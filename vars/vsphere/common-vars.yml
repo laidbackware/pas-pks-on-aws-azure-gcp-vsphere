@@ -11,4 +11,4 @@ bosh_vm_folder: pcf_vms
 disk_type: thin
 
 vsphere_version: "6.7"
-nsxt_version: "2.5"
+nsxt_version: "3.0"

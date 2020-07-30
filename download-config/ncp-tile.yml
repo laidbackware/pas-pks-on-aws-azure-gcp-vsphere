@@ -1,0 +1,13 @@
+---
+pivnet-api-token: ((pivnet_token))
+pivnet-file-glob: "VMware-NSX-T-*.pivotal"
+pivnet-product-slug: vmware-nsx-t
+product-version-regex: ((ncp_version_regex))
+
+s3-access-key-id: ((s3_access_key_id))
+s3-secret-access-key: ((s3_secret_access_key))
+s3-bucket: ((buckets.pivnet_products))
+s3-region-name: None
+s3-endpoint: ((s3_endpoint))
+s3-disable-ssl: true
+s3-enable-v2-signing: true

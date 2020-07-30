@@ -72,6 +72,7 @@ PKS_CLUSTER_ADMIN_USERNAME="$(lpass show pks_cluster_admin_user --username)"
 PKS_CLUSTER_ADMIN_PASSWORD="$(lpass show pks_cluster_admin_user --password)"
 VCENTER_USERNAME="$(lpass show lab_vcenter_creds --username)"
 VCENTER_PASSWORD="$(lpass show lab_vcenter_creds --password)"
+NSXT_LICENSE_KEY="$(lpass show nsxt_license_key --notes)"
 
 AZURE_JSON="{}"
 
@@ -139,6 +140,7 @@ credhub set -n /concourse/${FOUNDATION}/opsman_ssh -t ssh -p ~/.ssh/opsman_ssh -
 credhub set -n /concourse/${FOUNDATION}/parent_vcenter_credentials -t user -z "$VCENTER_USERNAME" -w "$VCENTER_PASSWORD"
 credhub set -n /concourse/${FOUNDATION}/nsx_password -t password -w "VMware1!VMware1!"
 credhub set -n /concourse/${FOUNDATION}/nsx_machine_cert -t rsa -p ../nsx.key -u ../nsx.crt #TODO
+credhub set -n /concourse/${FOUNDATION}/nsxt_license_key -t value -v "${NSXT_LICENSE_KEY}"
 credhub set -n /concourse/${FOUNDATION}/cloud_creds -t json -v "${CLOUD_CREDS_JSON}"
 credhub set -n /concourse/${FOUNDATION}/nested_vcenter_password -t password -w "VMware1!"
 credhub set -n /concourse/${FOUNDATION}/nested_host_password -t password -w "VMware1!"

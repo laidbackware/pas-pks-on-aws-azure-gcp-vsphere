@@ -82,6 +82,13 @@ resources:
         bucket: pivnet-downloads
         regexp: cf-(.*).pivotal
 
+-   name: ncp-tile
+    type: s3
+    source:
+        <<: *s3-common
+        bucket: pivnet-downloads
+        regexp: VMware-NSX-T-(.*).pivotal
+
 -   name: pks-stemcell-aws
     type: s3
     source:
@@ -391,6 +398,18 @@ jobs:
             -   put: pas-stemcell-vsphere
                 params:
                     file: pas-stemcell/*.tgz
+
+    -   task: download-ncp-tile
+        <<: *download-product-common
+        params:
+            CONFIG_FILE: download-config/ncp-tile.yml
+            VARS_FILES: |
+                config/vars/download-vars/download-vars.yml 
+                config/vars/vsphere/install-pas-vars.yml
+    -   in_parallel:
+            -   put: ncp-tile
+                params:
+                    file: downloaded-product/*.pivotal
 
 # Fetch JQ first to allow 
 -   name: fetch-jq

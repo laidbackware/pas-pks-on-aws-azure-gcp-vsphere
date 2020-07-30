@@ -15,6 +15,7 @@ nsx_manager:
     cluster: "Physical"
     datastore: "NVME"
     portgroup: "Net1"
+    license_key: "{{ lookup('env', 'NSXT_LICENSE_KEY') }}"
 
 ip_pools:
 -   display_name: tep-pool # This is a non-routable range which is used for the overlay tunnels.

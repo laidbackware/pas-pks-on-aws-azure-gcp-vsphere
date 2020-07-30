@@ -12,7 +12,7 @@ nested_vcenter: # the vCenter appliance that will be deployed
   password: "{{ lookup('env', 'NESTED_VCENTER_PASSWORD') }}"
   sso_domain: 'vsphere.local'
   datacenter: 'Lab' # Nested DC to create after deployment
-  ntp: 0.uk.pool.ntp.org
+  ntp: time1.google.com
   # Below are properties of parent cluster
   network: 'Net1' # Parent port group where the vCenter VM will be deployed
   datastore: 'NVME' # Parent datastore where the vCenter VM will be deployed

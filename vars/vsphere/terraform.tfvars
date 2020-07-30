@@ -13,7 +13,7 @@ pks_external_ip_pool_cidr   = "10.1.1.0/25"
 # The PAS LB VIPs will be the last 3 addresses in the pas pool block
 pas_external_ip_pool_cidr   = "10.1.1.128/25"
 
-pas_container_ip_block_cidr = "10.1.0.0/18"
+pas_container_ip_block_cidr = "10.1.192.0/18"
 pks_node_ip_block_cidr      = "10.1.64.0/18"
 pks_pod_ip_block_cidr       = "10.1.128.0/18"
 

@@ -91,6 +91,7 @@ jobs:
                     NESTED_VCENTER_PASSWORD:  ((nested_vcenter_password))
                 input_mapping:
                     config: configuration
+                attempts: 3
                 file: configuration/tasks/pave-vsphere-ansible/task.yml
 
     -   name: pave-nsxt
@@ -113,9 +114,10 @@ jobs:
                     NESTED_VCENTER_PASSWORD:  ((nested_vcenter_password))
                     NSX_API_PUBLIC_KEY: ((nsx_machine_cert.public_key))
                     NSX_API_PRIVATE_KEY: ((nsx_machine_cert.private_key))
+                    NSXT_LICENSE_KEY: ((nsxt_license_key))
                     PKS_USER_USER_PUBLIC_KEY: ((pks_nsx_super_user.public_key))
                     PKS_USER_USER_PRIVATE_KEY: ((pks_nsx_super_user.private_key))
                 input_mapping:
                     config: configuration
-                attempts: 4
+                attempts: 3
                 file: configuration/tasks/pave-nsxt-ansible/task.yml
