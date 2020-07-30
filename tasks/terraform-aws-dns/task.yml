@@ -34,7 +34,6 @@ params:
 inputs:
 - name: config
 - name: terraform
-- name: oq
 - name: generated-tf-output
 
 run:

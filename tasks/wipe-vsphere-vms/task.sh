@@ -32,7 +32,7 @@ for vm in ${VMS}
 do
     if [[ $vm == *"${FOUNDATION}-"* ]]; then
         echo "VM ${vm} markded for deletion"
-        TO_DELETE=${TO_DELETE} ${vm}
+        TO_DELETE="${TO_DELETE} ${vm}"
     fi
 done
 
@@ -57,7 +57,7 @@ echo "" >> ${ROOT_DIR}/terraform.tfstate
 s5cmd --endpoint-url  ${S3_ENDPOINT} --no-verify-ssl \
     cp ${OM_STATE_FILE} s3://opsman-state/${FOUNDATION}/
 s5cmd --endpoint-url  ${S3_ENDPOINT} --no-verify-ssl \
-    cp ${ROOT_DIR}/terraform.tfstate s3://terraform-state/${FOUNDATION}/
+    rm s3://terraform-state/${FOUNDATION}/terraform.tfstate
 
 # TODO 
 # add support for more than 1 ESXi host

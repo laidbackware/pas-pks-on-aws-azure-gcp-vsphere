@@ -3,12 +3,12 @@
 
 set -euxo pipefail
 
-if [ ${FOUNDATION} = "vsphere"* ]; then
+if [ ${IAAS_TYPE} = "vsphere" ]; then
     echo "Not needed for vsphere"
     exit 0
 fi
 
-if [ ${FOUNDATION} = "aws" ]; then
+if [ ${IAAS_TYPE} = "aws" ]; then
     echo "Not needed for AWS"
     exit 0
 fi
@@ -18,7 +18,7 @@ ROOT_DIR="$(pwd)"
 # Setup tools
 cp ${ROOT_DIR}/terraform/terraform-* /usr/local/bin/terraform
 chmod +x /usr/local/bin/terraform 
-${ROOT_DIR}/config/lib/add-tools/setup-oq.sh
+# ${ROOT_DIR}/config/lib/add-tools/setup-oq.sh
 
 cd ${ROOT_DIR}/config/terraform/aws-dns
 cp ${ROOT_DIR}/config/terraform/backend.tf .

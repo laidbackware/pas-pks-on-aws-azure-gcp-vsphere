@@ -38,21 +38,21 @@ resources:
         source:
             <<: *s3-common
             bucket: ((buckets.vmware_products))
-            regexp: VMware-VMvisor-Installer-(.*).iso
+            regexp: VMware-VMvisor-Installer-((vsphere_version)).(.*).iso
     
     -   name: vcenter-iso
         type: s3
         source:
             <<: *s3-common
             bucket: ((buckets.vmware_products))
-            regexp: VMware-VCSA-all-(.*).iso
+            regexp: VMware-VCSA-all-((vsphere_version)).(.*).iso
 
     -   name: nsxt-ova
         type: s3
         source:
             <<: *s3-common
             bucket: ((buckets.vmware_products))
-            regexp: nsx-unified-appliance-(.*).ova
+            regexp: nsx-unified-appliance-((nsxt_version)).(.*).ova
 
 jobs:
     -   name: create-esxi-image
@@ -100,7 +100,7 @@ jobs:
             -   in_parallel:
                 -   get: configuration
                     trigger: true
-                    # passed: [ "pave-vsphere" ]
+                    passed: [ "pave-vsphere" ]
                 -   get: nsxt-ansible
                 -   get: nsxt-ova
             -   task: deploy-nsxt-ansible

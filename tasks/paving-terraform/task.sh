@@ -7,9 +7,9 @@ ROOT_DIR="$(pwd)"
 # Setup tools
 cp ${ROOT_DIR}/terraform/terraform-* /usr/local/bin/terraform
 chmod +x /usr/local/bin/terraform 
-${ROOT_DIR}/config/lib/add-tools/setup-oq.sh
+# ${ROOT_DIR}/config/lib/add-tools/setup-oq.sh
 
-if [ ${FOUNDATION} = "vsphere"* ]; then
+if [ ${IAAS_TYPE} = "vsphere" ]; then
     NSX_VAR_FILE=${ROOT_DIR}/config/vars/${FOUNDATION}/nsxt-answerfile.yml
     if [ ! -f $NSX_VAR_FILE ]; then echo "${NSX_VAR_FILE} File not found!"; fi
     export TF_VAR_nsxt_host="$(bosh int $NSX_VAR_FILE  --path /nsx_manager/hostname)"

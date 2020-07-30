@@ -214,10 +214,9 @@ jobs:
                 unpack: true
         -   get: configuration
         -   get: paving-repo
-        # -   get: terraform-11
         -   get: terraform-12
-        -   get: oq
-        -   get: jq
+        # -   get: oq
+        # -   get: jq
     # -   task: prepare-tasks-with-secrets
     #     <<: *prepare-tasks-with-secrets
 
@@ -228,6 +227,7 @@ jobs:
             STATE_BUCKET_KEY_ID: ((s3_access_key_id))
             STATE_BUCKET: ((buckets.terraform_state))
             FOUNDATION: ((foundation))
+            IAAS_TYPE: ((iaas_stemcell))
             PRODUCT: ((product)) # PKS or PAS
             S3_ENDPOINT: "http://((s3_endpoint))"
             CLOUD_CREDS: ((cloud_creds)) 
@@ -248,6 +248,7 @@ jobs:
             STATE_BUCKET_KEY_ID: ((s3_access_key_id))
             STATE_BUCKET: ((buckets.terraform_state))
             FOUNDATION: ((foundation))
+            IAAS_TYPE: ((iaas_stemcell))
             PRODUCT: ((product))
             S3_ENDPOINT: "http://((s3_endpoint))"
             TF_VAR_aws_access_key: ((aws_client.username))

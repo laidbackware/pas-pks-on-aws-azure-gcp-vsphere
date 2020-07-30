@@ -270,35 +270,7 @@
       pause: seconds=20
       when: cert_result.changed
 
-    - name: Add PKS Super User certificate
-      nsxt_certificates:
-        hostname: "{{ nsx_manager.hostname }}"
-        username: "{{ nsx_manager.username }}"
-        password: "{{ nsx_manager.password }}"
-        validate_certs: False
-        display_name: "pks-super-user"
-        pem_encoded_file: "{{ cert_path }}/pks-super-user.crt"
-        private_key_file: "{{ cert_path }}/pks-super-user.key"
-        state: "present"
-      register: cert_result
-      retries: 3
-      delay: 10
-      until: "'module_stderr' not in result"
-      ignore_errors: yes
-
-    - fail: msg="super-user certificate no added"
-      when: "not cert_result.changed and 'already exists' not in cert_result.msg"
-    - debug: msg="super-user certificate added"
-      when:  cert_result.changed
-    - debug: msg="super-user certificate already exists"
-      when:  "'already exists' in cert_result.msg"
-      ignore_errors: yes # result.sg is only generated if not changed
-
-    - name: Wait 5 for NSX to catch up
-      pause: seconds=10
-      when: cert_result.changed
-
-    - name: Register a name-certificate combination
+    - name: Register a PKS Super User
       nsxt_principal_identities:
         hostname: "{{ nsx_manager.hostname }}"
         username: "{{ nsx_manager.username }}"
@@ -309,21 +281,17 @@
         node_id: "node-1"
         role: "enterprise_admin"
         certificate_name: "pks-super-user"
+        certificate_pem_file: "{{ cert_path }}/pks-super-user.crt"
         state: "present"
       register: pi_result
-      retries: 3
-      delay: 10
-      # until: "'module_stderr' not in result"
-      until: "'rc' not in result"
       ignore_errors: yes
-      #when: cert_result.changed
 
     - fail: msg="super-user not added"
-      when: "not pi_result.changed and 'already exists' not in pi_result.msg"
+      when: "not pi_result.changed and 'ImmutableCertificateEntity' not in pi_result.msg"
     - debug: msg="super-user added"
       when:  pi_result.changed
     - debug: msg="super-user already exists"
-      when:  "'already exists' in pi_result.msg"
+      when:  "'ImmutableCertificateEntity' in pi_result.msg"
       ignore_errors: yes # result.sg is only generated if not changed
 
  ##TODO

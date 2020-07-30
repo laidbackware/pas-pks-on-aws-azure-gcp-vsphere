@@ -1,5 +1,5 @@
 ---
-om_version: 2.9
+# om_version: "2.9"
 opsman_regex: ^2\.9\.\d+.*$
 opsman_pivnet_glob: "ops-manager-vsphere-*.ova"
 ntp_servers_string: 0.uk.pool.ntp.org
@@ -10,4 +10,5 @@ bosh_template_folder: pcf_templates
 bosh_vm_folder: pcf_vms
 disk_type: thin
 
-
+vsphere_version: "6.7"
+nsxt_version: "2.5"

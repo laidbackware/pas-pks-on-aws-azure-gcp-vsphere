@@ -23,6 +23,7 @@
         username: "{{ nsx_manager.username }}"
         password: "{{ nsx_manager.password }}"
         validate_certs: False
+        display_name: "Default route"
         logical_router_name: "{{ item.router_display_name }}"
         next_hops:
         - administrative_distance: "{{ item.administrative_distance }}"

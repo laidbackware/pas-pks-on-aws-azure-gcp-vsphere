@@ -31,8 +31,6 @@ inputs:
 - name: config
 - name: terraform
 - name: paving-repo
-- name: oq
-- name: jq
   
 outputs:
 - name: generated-tf-output
