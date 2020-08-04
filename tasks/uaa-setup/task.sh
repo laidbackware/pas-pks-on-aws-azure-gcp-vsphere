@@ -15,7 +15,7 @@ chmod +x yq*
 cp yq* /usr/local/bin/yq
 popd
 
-OM_TARGET=$(yq r ${ROOT_DIR}/config/vars/${FOUNDATION}/env.yml target)
+OM_TARGET=$(yq r ${ROOT_DIR}/config/vars/${FOUNDATION}/env/env.yml target)
 PKS_ADDRESS=$(yq r ${ROOT_DIR}/config/vars/${FOUNDATION}/install-pks-vars.yml pks_api_hostname)
 
 UAAC_SECRET=$(om -k -t ${OM_TARGET} credentials --product-name pivotal-container-service --credential-reference .properties.pks_uaa_management_admin_client --format=json | yq r - secret | tr -d '"')
