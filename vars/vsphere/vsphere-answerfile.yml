@@ -40,6 +40,7 @@ nested_hosts: # environment_tag will prepend the name
     parent_cluster: 'Physical' # the when the VM ESXi guest will be deployed
     vmk_portgroup: 'Nest' # Port group to use on the physical host
     tep_portgroup: 'TEP' # Port group to use on the physical host
+    esxi_version: "{{ lookup('env', 'VSPHERE_VERSION') }}"
 
 ### No need to edit below this marker ###
 

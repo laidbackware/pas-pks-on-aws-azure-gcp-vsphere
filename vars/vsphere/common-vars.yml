@@ -10,5 +10,5 @@ bosh_template_folder: pcf_templates
 bosh_vm_folder: pcf_vms
 disk_type: thin
 
-vsphere_version: "6.7"
+vsphere_version: "7.0"
 nsxt_version: "3.0"
