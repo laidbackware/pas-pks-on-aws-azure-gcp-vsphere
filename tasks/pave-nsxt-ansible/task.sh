@@ -38,5 +38,5 @@ ansible-playbook "${ROOT_DIR}/config/playbooks/nsxt_deploy_base.yml" \
     --extra-vars "manager_ova_file=${NSXT_OVA_FILE} manager_path_to_ova=${NSXT_OVA_PATH} \
     cert_path=${CERT_DIR} environment_tag=${FOUNDATION}" -vvv
 
-ansible-playbook "${ROOT_DIR}/config/playbooks/nsxt_deploy_tier_0.yml" \
-    --extra-vars="@${NSX_VARS}" -vvv
+# ansible-playbook "${ROOT_DIR}/config/playbooks/nsxt_deploy_tier_0.yml" \
+#     --extra-vars="@${NSX_VARS}" -vvv
