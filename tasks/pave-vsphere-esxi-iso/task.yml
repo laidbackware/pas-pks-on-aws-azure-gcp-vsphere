@@ -16,6 +16,7 @@ params:
   PARENT_VCENTER_PASSWORD:
   NESTED_VCENTER_PASSWORD:
   ANSIBLE_FORCE_COLOR: true
+  VSPHERE_VERSION:
   
 run:
   path: config/tasks/pave-vsphere-esxi-iso/task.sh

@@ -2,6 +2,8 @@ dns1: '192.168.0.110'
 dns2: '192.168.0.1'
 domain: 'home.local'
 
+vsphere_version: "{{ lookup('env', 'VSPHERE_VERSION') }}"
+
 nested_vcenter: # the vCenter appliance that will be deployed
   ip: '192.168.0.191' # vCenter ip address 
   mask: '24'

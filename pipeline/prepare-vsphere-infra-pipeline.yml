@@ -69,6 +69,7 @@ jobs:
                     PARENT_VCENTER_USERNAME: ((parent_vcenter_credentials.username))
                     PARENT_VCENTER_PASSWORD: ((parent_vcenter_credentials.password))
                     NESTED_VCENTER_PASSWORD:  ((nested_vcenter_password))
+                    VSPHERE_VERSION: ((vsphere_version))
                 input_mapping:
                     config: configuration
                 file: configuration/tasks/pave-vsphere-esxi-iso/task.yml
@@ -89,6 +90,7 @@ jobs:
                     PARENT_VCENTER_USERNAME: ((parent_vcenter_credentials.username))
                     PARENT_VCENTER_PASSWORD: ((parent_vcenter_credentials.password))
                     NESTED_VCENTER_PASSWORD:  ((nested_vcenter_password))
+                    VSPHERE_VERSION: ((vsphere_version))
                 input_mapping:
                     config: configuration
                 attempts: 3
