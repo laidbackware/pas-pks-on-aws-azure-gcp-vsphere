@@ -50,12 +50,12 @@ networks-configuration:
             - PAS-AZ1
             - PKS-AZ1
             - director
-    -   name: ((pas_subnet_name)) # tf-output
+    -   name: ((deployment_subnet_name)) # tf-output
         subnets:
-        -   iaas_identifier: ((pas_subnet_name)) # tf-output
-            cidr: ((pas_subnet_cidr)) # tf-output
+        -   iaas_identifier: ((deployment_subnet_name)) # tf-output
+            cidr: ((deployment_subnet_cidr)) # tf-output
             dns: ((dns1)) #  vsphere-answers
-            gateway: ((pas_subnet_gateway)) # tf-output
+            gateway: ((deployment_subnet_gateway)) # tf-output
             # reserved_ip_ranges: ((ops_manager_public_ip))
             availability_zone_names:
             - PAS-AZ1
