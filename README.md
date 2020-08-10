@@ -37,7 +37,10 @@ Use a your own risk.
 | GCP               | TAS                    | Not started |                                          |
 | GCP               | TKGi \(PKS\)           | Not started |                                          |
 | vSphere \+ NSX\-T | TAS \- Small Footrpint | Not started |                                          |
-| vSphere \+ NSX\-T | TKGi \(PKS\)           | Working     | PKS 1\.8, vSphere 6\.7u3, NSX\-T 3\.0\.1 |
+| vSphere \+ NSX\-T | TKGi \(PKS\)           | Working     | PKS 1\.8, vSphere 7\.0, NSX\-T 3\.0\.1 |
+
+# Backwards Compatibility
+- vSphere 6.7 should work without any modification other than the vsphere_version var in common-vars.yml
 
 # Working Branches
 - nsxt-25 - Last working commit with NSX-T 2.5 and vSphere 6.7 before switching to NSX-T 3.0
