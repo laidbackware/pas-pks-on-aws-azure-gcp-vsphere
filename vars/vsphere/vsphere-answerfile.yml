@@ -2,6 +2,8 @@ dns1: '192.168.0.110'
 dns2: '192.168.0.1'
 domain: 'home.local'
 
+vsphere_version: "{{ lookup('env', 'VSPHERE_VERSION') }}"
+
 nested_vcenter: # the vCenter appliance that will be deployed
   ip: '192.168.0.191' # vCenter ip address 
   mask: '24'
@@ -40,7 +42,6 @@ nested_hosts: # environment_tag will prepend the name
     parent_cluster: 'Physical' # the when the VM ESXi guest will be deployed
     vmk_portgroup: 'Nest' # Port group to use on the physical host
     tep_portgroup: 'TEP' # Port group to use on the physical host
-    esxi_version: "{{ lookup('env', 'VSPHERE_VERSION') }}"
 
 ### No need to edit below this marker ###
 

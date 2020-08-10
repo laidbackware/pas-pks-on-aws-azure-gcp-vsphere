@@ -15,6 +15,7 @@ Use a your own risk.
 - Access to a version control repo containing you copy of  this repo
 - A Pivnet account to enable product downloads
 - As of NSX-T 3.0, a license allowing install with vsphere
+- The `vmware-products` bucket my contain the vCenter appliance, ESXi and NSX-T. All product file names must follow the semver pattern using the names setup in the pipeline resources.
 
 # Instructions
 - Secrets must be inserted into the secrets store in the relevant Concourse teams. `1-credhub_set_creds.sh` pulls these from lastpass.
