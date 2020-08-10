@@ -229,7 +229,7 @@ jobs:
             FOUNDATION: ((foundation))
             IAAS_TYPE: ((iaas_stemcell))
             PRODUCT: ((product)) # PKS or PAS
-            S3_ENDPOINT: "http://((s3_endpoint))"
+            S3_ENDPOINT: "((s3_endpoint))"
             CLOUD_CREDS: ((cloud_creds)) 
             TF_VAR_hosted_zone: "((domain))."
         input_mapping:
@@ -250,7 +250,7 @@ jobs:
             FOUNDATION: ((foundation))
             IAAS_TYPE: ((iaas_stemcell))
             PRODUCT: ((product))
-            S3_ENDPOINT: "http://((s3_endpoint))"
+            S3_ENDPOINT: "((s3_endpoint))"
             TF_VAR_aws_access_key: ((aws_client.username))
             TF_VAR_aws_secret_key: ((aws_client.password))
         input_mapping:
@@ -751,7 +751,7 @@ jobs:
                 FOUNDATION: ((foundation))
                 PRODUCT: ((product))
                 DOMAIN: ((domain))
-                S3_ENDPOINT: "http://((s3_endpoint))"
+                S3_ENDPOINT: "((s3_endpoint))"
                 # TF_VAR_aws_access_key: ((aws_client.username))
                 # TF_VAR_aws_secret_key: ((aws_client.password))
                 IAAS_TYPE: ((iaas_stemcell))
@@ -771,7 +771,7 @@ jobs:
             # BUCKET: ((buckets.terraform_state))
             FOUNDATION: ((foundation))
             PRODUCT: ((product))
-            S3_ENDPOINT: "http://((s3_endpoint))"
+            S3_ENDPOINT: "((s3_endpoint))"
             # TF_VAR_access_key: ((cloud_creds.client_id))
             # TF_VAR_secret_key: ((cloud_creds.client_secret))
             CLOUD_CREDS: ((cloud_creds)) 
@@ -791,7 +791,7 @@ jobs:
             IAAS_TYPE: ((iaas_stemcell))
             AWS_ACCESS_KEY_ID: ((s3_access_key_id))
             AWS_SECRET_ACCESS_KEY: ((s3_secret_access_key))
-            S3_ENDPOINT: "http://((s3_endpoint))"
+            S3_ENDPOINT: "((s3_endpoint))"
             FOUNDATION: ((foundation))
         input_mapping:
             config: configuration

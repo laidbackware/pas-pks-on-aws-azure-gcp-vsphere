@@ -16,8 +16,9 @@ if [ ${IAAS_TYPE} = "vsphere" ]; then
     export TF_VAR_nsxt_username="$(bosh int <(echo ${CLOUD_CREDS}) --path /client_id)"
     export TF_VAR_nsxt_password="$(bosh int <(echo ${CLOUD_CREDS}) --path /client_secret)"
     export TF_VAR_overlay_transport_zone_name="$(bosh int ${NSX_VAR_FILE} --path /transportzones/0/display_name)"
+    export TF_VAR_vlan_transport_zone_name="$(bosh int ${NSX_VAR_FILE} --path /transportzones/1/display_name)"
     export TF_VAR_nsxt_edge_cluster_name="$(bosh int ${NSX_VAR_FILE} --path /edge_cluster_name)"
-    export TF_VAR_nsxt_t0_router_name="$(bosh int ${NSX_VAR_FILE} --path /logical_routers/0/router_display_name)"
+    # export TF_VAR_nsxt_t0_router_name="$(bosh int ${NSX_VAR_FILE} --path /logical_routers/0/router_display_name)"
     # export TF_VAR_nsxt_host="$(oq -i yaml .nsx_manager.hostname $NSX_VAR_FILE | tr -d '"')"
     # export TF_VAR_nsxt_username="$(echo ${CLOUD_CREDS} | oq .client_id | tr -d '"' )"
     # export TF_VAR_nsxt_password="$(echo ${CLOUD_CREDS} | oq .client_secret | tr -d '"' )"
@@ -53,7 +54,7 @@ terraform init -backend-config="bucket=$STATE_BUCKET" \
     -backend-config="access_key=${STATE_BUCKET_KEY_ID}"\
     -backend-config="secret_key=${STATE_BUCKET_SECRET_KEY}"
 
-terraform plan -out=./tf.plan -var-file=${ROOT_DIR}/config/vars/${FOUNDATION}/terraform.tfvars
+terraform plan -out=./tf.plan -var-file=${ROOT_DIR}/config/vars/${FOUNDATION}/terraform.tfvars -input=false
 
 terraform apply -auto-approve ./tf.plan
 

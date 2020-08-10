@@ -25,6 +25,11 @@ variable "overlay_transport_zone_name" {
   type        = string
 }
 
+variable "vlan_transport_zone_name" {
+  description = "The name of the Transport Zone that carries internal traffic between the NSX-T components. Also known as the `overlay` transport zone"
+  type        = string
+}
+
 variable "infrastructure_cidr" {
   description = "The CIDR for the PAS Infrastructure network. Must be reachable from clients outside the foundation. Can be RFC1918 addresses (10.x, 172.16-31.x, 192.168.x), e.g. `10.195.74.0/24`"
   type        = string
