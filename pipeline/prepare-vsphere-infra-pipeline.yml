@@ -68,7 +68,8 @@ jobs:
                     NESTED_HOST_PASSWORD: ((nested_host_password))
                     PARENT_VCENTER_USERNAME: ((parent_vcenter_credentials.username))
                     PARENT_VCENTER_PASSWORD: ((parent_vcenter_credentials.password))
-                    NESTED_VCENTER_PASSWORD:  ((nested_vcenter_password))
+                    NESTED_VCENTER_PASSWORD:  ((nested_vcenter_credentials.password))
+                    VSPHERE_VERSION: ((vsphere_version))
                 input_mapping:
                     config: configuration
                 file: configuration/tasks/pave-vsphere-esxi-iso/task.yml
@@ -88,7 +89,7 @@ jobs:
                     NESTED_HOST_PASSWORD: ((nested_host_password))
                     PARENT_VCENTER_USERNAME: ((parent_vcenter_credentials.username))
                     PARENT_VCENTER_PASSWORD: ((parent_vcenter_credentials.password))
-                    NESTED_VCENTER_PASSWORD:  ((nested_vcenter_password))
+                    NESTED_VCENTER_PASSWORD:  ((nested_vcenter_credentials.password))
                     VSPHERE_VERSION: ((vsphere_version))
                 input_mapping:
                     config: configuration
@@ -112,7 +113,7 @@ jobs:
                     NSX_PASSWORD: ((nsx_password))
                     PARENT_VCENTER_USERNAME: ((parent_vcenter_credentials.username))
                     PARENT_VCENTER_PASSWORD: ((parent_vcenter_credentials.password))
-                    NESTED_VCENTER_PASSWORD:  ((nested_vcenter_password))
+                    NESTED_VCENTER_PASSWORD:  ((nested_vcenter_credentials.password))
                     NSX_API_PUBLIC_KEY: ((nsx_machine_cert.public_key))
                     NSX_API_PRIVATE_KEY: ((nsx_machine_cert.private_key))
                     NSXT_LICENSE_KEY: ((nsxt_license_key))

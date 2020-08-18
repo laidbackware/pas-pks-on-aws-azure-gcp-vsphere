@@ -13,21 +13,19 @@ data "nsxt_policy_transport_zone" "vlan_transport_zone" {
 resource "nsxt_policy_tier0_gateway" "tier0_gw" {
   description               = "Tier-0 provisioned by Terraform"
   display_name              = "tier0-gw"
-#   nsx_id                    = "predefined_id"
   failover_mode             = "PREEMPTIVE"
   enable_firewall           = true
   ha_mode                   = "ACTIVE_STANDBY"
   edge_cluster_path         = data.nsxt_policy_edge_cluster.edge_cluster.path
 }
 
-resource "nsxt_policy_static_route" "route1" {
+resource "nsxt_policy_static_route" "to_static)route" {
   display_name = "default_route"
   gateway_path = nsxt_policy_tier0_gateway.tier0_gw.path
   network      = "0.0.0.0/0"
-
   next_hop {
     admin_distance = "1"
-    ip_address     = "192.168.0.1"
+    ip_address     = var.t0_static_route_next_hop
   }
 }
 
@@ -36,10 +34,6 @@ resource "nsxt_policy_vlan_segment" "vlan_uplink_segment" {
   description         = "Terraform provisioned VLAN Segment"
   transport_zone_path = data.nsxt_policy_transport_zone.vlan_transport_zone.path
   vlan_ids            = ["0"]
-
-#   subnet {
-#     cidr        = "192.168.0.1/24"
-#   }
 }
 
 resource "nsxt_policy_tier0_gateway_interface" "t0_up" {
@@ -48,7 +42,7 @@ resource "nsxt_policy_tier0_gateway_interface" "t0_up" {
   type                   = "EXTERNAL"
   gateway_path           = nsxt_policy_tier0_gateway.tier0_gw.path
   segment_path           = nsxt_policy_vlan_segment.vlan_uplink_segment.path
-  subnets                = ["192.168.0.195/24"]
+  subnets                = [var.nsxt_t0_router_uplink_ip]
   mtu                    = 1500
 }
 

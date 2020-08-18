@@ -4,7 +4,7 @@ opsman-configuration:
         vcenter:
             url: ((nested_vcenter.host_name)) #  vsphere-answers
             username: administrator@vsphere.local
-            password: ((nested_vcenter_password)) #Credhub
+            password: ((nested_vcenter_credentials.password)) #Credhub
             datastore: ((nested_datastore)) # vsphere-answers
             #ca_cert: certificate
             #host: example-host                     # vCenter host to deploy Ops Manager in

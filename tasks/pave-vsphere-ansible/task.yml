@@ -16,6 +16,8 @@ params:
   PARENT_VCENTER_PASSWORD:
   NESTED_VCENTER_PASSWORD:
   ANSIBLE_FORCE_COLOR: true
+  VSPHERE_VERSION:
+  FOUNDATION:
   
 run:
   path: config/tasks/pave-vsphere-ansible/task.sh

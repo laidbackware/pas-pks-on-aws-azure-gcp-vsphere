@@ -79,11 +79,22 @@ variable "nsxt_edge_cluster_name" {
   type        = string
 }
 
-variable "nsxt_t0_router_name" {
+variable "t0_router_name" {
   default     = "t0-router"
   description = "The name of the T0 router"
   type        = string
 }
+
+variable "t0_router_uplink_ip" {
+  description = "The t0 uplink IP address"
+  type        = string
+}
+
+variable "t0_static_route_next_hop" {
+  description = "The t0 next hop"
+  type        = string
+}
+
 # }
 
 # Load Balancer {

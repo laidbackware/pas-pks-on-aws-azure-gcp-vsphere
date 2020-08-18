@@ -15,8 +15,8 @@ product-properties:
     value: ((nested_vcenter.host_name)) #VS
   .properties.cloud_provider.vsphere.vcenter_master_creds:
     value:
-      identity: ((nested_vcenter.user))
-      password: ((nested_vcenter.password))
+      identity: ((nested_vcenter_credentials.username))
+      password: ((nested_vcenter_credentials.password))
   .properties.cloud_provider.vsphere.vcenter_vms:
     value: ((vcenter_vms_folder))
   .properties.log_sink_resources_deploy:

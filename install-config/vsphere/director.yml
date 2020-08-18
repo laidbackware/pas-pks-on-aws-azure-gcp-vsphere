@@ -29,7 +29,7 @@ iaas-configurations:
     ssl_verification_enabled: false
     vcenter_host: ((nested_vcenter.host_name)) #  vsphere-answers
     vcenter_username: administrator@vsphere.local #  vsphere-answers
-    vcenter_password: ((nested_vcenter_password)) #  vsphere-answers
+    vcenter_password: ((nested_vcenter_credentials.password)) #  vsphere-answers
 network-assignment:
     network:
         name: ((management_subnet_name)) # tf-output

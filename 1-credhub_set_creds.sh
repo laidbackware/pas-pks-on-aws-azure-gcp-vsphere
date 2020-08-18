@@ -142,7 +142,7 @@ credhub set -n /concourse/${FOUNDATION}/nsx_password -t password -w "VMware1!VMw
 credhub set -n /concourse/${FOUNDATION}/nsx_machine_cert -t rsa -p ../nsx.key -u ../nsx.crt #TODO
 credhub set -n /concourse/${FOUNDATION}/nsxt_license_key -t value -v "${NSXT_LICENSE_KEY}"
 credhub set -n /concourse/${FOUNDATION}/cloud_creds -t json -v "${CLOUD_CREDS_JSON}"
-credhub set -n /concourse/${FOUNDATION}/nested_vcenter_password -t password -w "VMware1!"
+credhub set -n /concourse/${FOUNDATION}/nested_vcenter_credentials -t user -z administrator@vsphere.local -w "VMware1!"
 credhub set -n /concourse/${FOUNDATION}/nested_host_password -t password -w "VMware1!"
 # credhub set -n /concourse/${FOUNDATION}/vcenter_password -t password -w "VMware1!"
 # PKS Secrets
@@ -152,8 +152,6 @@ credhub set -n /concourse/${FOUNDATION}/pks_cluster_admin_user -t user -z "$PKS_
 # Below are to allow a single task to pave all IaaS and don't currently apply to vSphere
 credhub set -n /concourse/${FOUNDATION}/domain -t value -v "home.local"
 credhub set -n /concourse/${FOUNDATION}/aws_client -t user -z "null" -w "null"
-
-
 
 # vSphere section
 # credhub set -n /concourse/main/pks_api_cert -t rsa -p ../pks.key -u ../pks.crt
