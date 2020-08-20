@@ -27,12 +27,13 @@ resources:
         type: git
         source:
             private_key: ((git_private_key.private_key))
-            uri: git@github.com:vmware/ansible-for-nsxt.git
-            branch: master # Using dev branch as features needed for NSX-T 2.5
-        version:
-            ref: 2f72f26291bb11a7fa51da5bf4c97ae63b0de064
-            # ref: 6fb698168fd8c5592575d1a9a33640eeb920f76e # Pinning to commit as dev branch
-
+            # uri: git@github.com:vmware/ansible-for-nsxt.git
+            # branch: master # Using dev branch as features needed for NSX-T 2.5
+            uri: git@github.com:laidbackware/ansible-for-nsxt.git
+            branch: compute-manager-trust # Using fork to allow compute manager trust.
+        # version:
+        #     ref: 2f72f26291bb11a7fa51da5bf4c97ae63b0de064
+            
     -   name: esxi-iso
         type: s3
         source:

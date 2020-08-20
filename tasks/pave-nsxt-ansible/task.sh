@@ -2,12 +2,12 @@
 
 set -euxo pipefail
 
-shopt -s expand_aliases
-if type python3 > /dev/null; then
-  alias python="$(which -a python3 | head -n 1)"
-  echo "Aliasing python3 to python"
-fi
-python --version
+# shopt -s expand_aliases
+# if type python3 > /dev/null; then
+#   alias python="$(which -a python3 | head -n 1)"
+#   echo "Aliasing python3 to python"
+# fi
+# python --version
 
 # Reduce default sleep between commands
 sed -i 's/time.sleep(5)/time.sleep(1)/g' ./nsxt-ansible/library/* 
@@ -16,8 +16,8 @@ ROOT_DIR="$(pwd)"
 NSXT_OVA_FILE="$(cd ${ROOT_DIR}/nsxt-ova/; ls *.ova)"
 NSXT_OVA_PATH="${ROOT_DIR}/nsxt-ova/"
 
-export ANSIBLE_LIBRARY="${PWD}/nsxt-ansible"
-export ANSIBLE_MODULE_UTILS="${PWD}/nsxt-ansible/module_utils"
+export ANSIBLE_LIBRARY="${ROOT_DIR}/nsxt-ansible"
+export ANSIBLE_MODULE_UTILS="${ROOT_DIR}/nsxt-ansible/module_utils"
 
 mkdir -p ${ROOT_DIR}/certs
 CERT_DIR=${ROOT_DIR}/certs
