@@ -19,7 +19,7 @@ resource "nsxt_policy_tier0_gateway" "tier0_gw" {
   edge_cluster_path         = data.nsxt_policy_edge_cluster.edge_cluster.path
 }
 
-resource "nsxt_policy_static_route" "to_static)route" {
+resource "nsxt_policy_static_route" "t0_static_route" {
   display_name = "default_route"
   gateway_path = nsxt_policy_tier0_gateway.tier0_gw.path
   network      = "0.0.0.0/0"
