@@ -25,7 +25,7 @@ resource "nsxt_policy_static_route" "t0_static_route" {
   network      = "0.0.0.0/0"
   next_hop {
     admin_distance = "1"
-    ip_address     = var.t0_static_route_next_hop
+    ip_address     = var.nsxt_t0_static_route_next_hop
   }
 }
 
