@@ -17,7 +17,7 @@ iaas-configurations:
     bosh_vm_folder: ((bosh_vm_folder)) # common-vars
     datacenter: ((nested_vcenter.datacenter)) #  vsphere-answers
     disk_type: ((disk_type)) # common-vars
-    ephemeral_datastores_string: ((nested_datastore)) #  credhub
+    ephemeral_datastores_string: ((nested_clusters.compute.nested_hosts_disks.1.create_datastore_name))-((foundation)) #  credhub
     name: default
     nsx_address: ((nsxt_host)) # tf-output
     nsx_ca_certificate: ((nsx_machine_cert.public_key)) #  credhub
@@ -25,7 +25,7 @@ iaas-configurations:
     nsx_networking_enabled: true
     nsx_username: ((cloud_creds.client_id)) #  credhub
     nsx_password: ((cloud_creds.client_secret)) #  credhub
-    persistent_datastores_string: ((nested_datastore)) #  vsphere-answers
+    persistent_datastores_string: ((nested_clusters.compute.nested_hosts_disks.1.create_datastore_name))-((foundation)) #  vsphere-answers
     ssl_verification_enabled: false
     vcenter_host: ((nested_vcenter.host_name)) #  vsphere-answers
     vcenter_username: administrator@vsphere.local #  vsphere-answers
