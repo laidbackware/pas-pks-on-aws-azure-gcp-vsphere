@@ -1,15 +1,15 @@
 az-configuration:
 -   name: director
     clusters:
-    -   cluster: ((nested_hosts.esx1.cluster)) #  vsphere-answers
+    -   cluster: ((nested_hosts.esx1.nested_cluster)) #  vsphere-answers
 -   name: PAS-AZ1
     clusters:
-    -   cluster: ((nested_hosts.esx1.cluster)) #  vsphere-answers
-        resource_pool: ((resource_pools.pas)) #  vsphere-answers
+    -   cluster: ((nested_hosts.esx1.nested_cluster)) #  vsphere-answers
+        # resource_pool: ((nested_clusters.compute.resource_pools.0)) #  vsphere-answers
 -   name: PKS-AZ1
     clusters:
-    -   cluster: ((nested_hosts.esx1.cluster)) #  vsphere-answers
-        resource_pool: ((resource_pools.pks)) #  vsphere-answers
+    -   cluster: ((nested_hosts.esx1.nested_cluster)) #  vsphere-answers
+        # resource_pool: ((nested_clusters.compute.resource_pools.1)) #  vsphere-answers
 iaas-configurations:
 -   additional_cloud_properties: {}
     bosh_disk_path: ((bosh_disk_path)) # common-vars

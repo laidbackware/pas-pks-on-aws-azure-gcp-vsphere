@@ -321,7 +321,7 @@ jobs:
     -   task: configure-authentication
         image: platform-automation-image
         file: platform-automation-tasks/tasks/configure-authentication.yml
-        attempts: 10
+        attempts: 20
         params:
           ENV_FILE: vars/((foundation))/env/env.yml
           AUTH_CONFIG_FILE: install-config/((foundation))/auth.yml
