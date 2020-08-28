@@ -34,7 +34,7 @@ edges:
     # vSphere config
     network_management_name: "net1"
     network_tep_name: "tep_pg"
-    datastore_name: "datastore1"
+    datastore_name: "datastore-esx1"
     cluster_name: "compute"
 
 ### No need to edit below this marker ###
