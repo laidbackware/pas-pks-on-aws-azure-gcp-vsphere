@@ -64,7 +64,7 @@ product-properties:
   .properties.network_selector.nsx.t0-router-id:
     value: ((tier_0_id))
   .properties.network_selector.nsx.vcenter_cluster:
-    value: ((nested_hosts.esx1.cluster))
+    value: ((nested_hosts.esx1.nested_cluster))
   .properties.pks-vrli:
     selected_option: disabled
     value: disabled
