@@ -16,7 +16,7 @@ export GOVC_USERNAME=$(bosh int <(echo ${CLOUD_CREDS}) --path /parent_vcenter_us
 export GOVC_PASSWORD=$(bosh int <(echo ${CLOUD_CREDS}) --path /parent_vcenter_password)
 export GOVC_DATACENTER=$(bosh int ${VSPHERE_VARS} --path /parent_vcenter/datacenter) \
     || exit $? && export GOVC_DATACENTER
-export GOVC_URL=https://$(bosh int ${VSPHERE_VARS} --path /parent_vcenter/ip) \
+export GOVC_URL=https://$(bosh int ${VSPHERE_VARS} --path /hosting_vcenter/ip) \
     || exit $? && export GOVC_URL
 export GOVC_INSECURE=true
 
