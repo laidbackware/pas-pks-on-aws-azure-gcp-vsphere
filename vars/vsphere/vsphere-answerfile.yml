@@ -58,6 +58,7 @@ nested_clusters: # You can add, remove or rename clusters in this section
         vmnic_physical_portgroup_assignment: # In vmnic order, these port groups must exist on the physical host
             - "Nest"
             - "TEP"
+            - "TEP"
 ### No need to edit below this marker ###
 resource_pools:
     -   cluster_name: compute
@@ -72,11 +73,18 @@ distributed_switches:
             - esx1
         uplink_quantity: 1
         vmnics:
-            - vmnic1            
+            - vmnic1        
+    -   name: vds_edge_uplink
+        mtu: 9000
+        hosts:
+            - esx1
+        uplink_quantity: 1
+        vmnics:
+            - vmnic2
 
 distributed_port_groups:
     -   name: tep_pg
-        switch_name: vds_overlay
+        switch_name: vds_edge_uplink
         vlan_id: "0"
 
 nested_host_credentials: # Credentials set in kickstart file inside the custom ISO

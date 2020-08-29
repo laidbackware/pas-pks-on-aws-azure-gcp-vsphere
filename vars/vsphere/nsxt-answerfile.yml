@@ -47,7 +47,7 @@ transportzones:
     -   display_name: "tz-overlay"
         transport_type: "OVERLAY"
         host_switch_name: "vds_overlay"
-        description: "Uplink Transport Zone"
+        description: "Overlay Transport Zone"
     -   display_name: "tz-vlan"
         transport_type: "VLAN"
         host_switch_name: "sw_vlan"
