@@ -175,7 +175,7 @@
           resource_type: "StandardHostSwitchSpec"
           host_switches:
           - host_switch_profiles:
-            - name: "{{ uplink_profiles[0].display_name }}"
+            - name: "{{ uplink_profiles[1].display_name }}"
               type: UplinkHostSwitchProfile
             host_switch_name: vds_overlay
             pnics:
@@ -185,7 +185,7 @@
               resource_type: StaticIpPoolSpec
               ip_pool_name: "tep-pool"
           - host_switch_profiles:
-            - name: "{{ uplink_profiles[1].display_name }}"
+            - name: "{{ uplink_profiles[2].display_name }}"
               type: UplinkHostSwitchProfile
             host_switch_name: sw_vlan
             pnics:

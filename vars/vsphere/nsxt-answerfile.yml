@@ -54,7 +54,15 @@ transportzones:
         description: "Uplink Transport Zone"
 
 uplink_profiles:
--   display_name: tep-profile
+-   display_name: host-tep-profile
+    teaming:
+        active_list:
+        -   uplink_name: "uplink-1"
+            uplink_type: PNIC
+        policy: FAILOVER_ORDER
+    transport_vlan: 0    
+-   display_name: edge-tep-profile
+    mtu: 1500
     teaming:
         active_list:
         -   uplink_name: "uplink-1"
@@ -78,7 +86,7 @@ transport_node_profiles:
 -   display_name: tnp1
     host_switches:
     -   host_switch_profiles:
-        -   name: tep-profile
+        -   name: host-tep-profile
             type: UplinkHostSwitchProfile
         host_switch_name: vds_overlay
         host_switch_type: VDS
