@@ -1,8 +1,9 @@
 ---
 pivnet-api-token: ((pivnet_token))
-pivnet-file-glob: ((opsman_pivnet_glob))
-pivnet-product-slug: ops-manager
-product-version-regex: ((opsman_regex))
+pivnet-file-glob: "harbor-container-registry-*.pivotal"
+pivnet-product-slug: harbor-container-registry
+product-version-regex: ((product_version_regex))
+stemcell-iaas: ((iaas_stemcell))
 
 s3-access-key-id: ((s3_access_key_id))
 s3-secret-access-key: ((s3_secret_access_key))
