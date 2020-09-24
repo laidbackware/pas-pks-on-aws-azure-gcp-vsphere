@@ -375,7 +375,7 @@ jobs:
             CONFIG_FILE: download-config/harbor.yml
             VARS_FILES: |
                 config/vars/download-vars/download-vars.yml 
-                config/vars/vsphere/install-harbor-vars.yml
+            # config/vars/vsphere/install-harbor-vars.yml
         output_mapping: {downloaded-stemcell: harbor-stemcell}
     -   in_parallel:
             -   put: harbor-product

@@ -96,8 +96,8 @@ resources:
 -   name: paving-repo
     type: git
     source:
-        private_key: ((git_private_key.private_key))
-        uri: git@github.com:pivotal/paving.git
+        # private_key: ((git_private_key.private_key))
+        uri: https://github.com/pivotal/paving.git
         branch: master
 
 -   name: platform-automation-tasks
@@ -117,8 +117,8 @@ resources:
 -   name: configuration
     type: git
     source:
-        private_key: ((git_private_key.private_key))
-        uri: git@github.com:laidbackware/aws-pks-pas.git
+        # private_key: ((git_private_key.private_key))
+        uri: https://github.com/laidbackware/pas-pks-on-aws-azure-gcp-vsphere.git
         branch: ((branch))
 
 -   name: tf-output-yaml
