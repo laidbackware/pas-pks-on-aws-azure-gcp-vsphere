@@ -1,7 +1,7 @@
 ---
 # stemcell-iaas: vmware
 
-harbor_stemcell_version: ""
+harbor_stemcell_version: "621.84"
 harbor_product_version_regex: ^2\..*\..*$
 
 ## Required unless `s3-auth-method` is `iam`
