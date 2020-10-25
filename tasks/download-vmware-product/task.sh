@@ -1,8 +1,7 @@
 #!/bin/sh
 set -euxo pipefail
 
-ROOT_DIR=$(pwd)
-cd downloaded-product
+DOWNLOAD_DIR="$(pwd)/downloaded-product"
 
 PRODUCT_FILES="$(vmw-cli ls ${PRODUCT_DIRECTORY})"
 
@@ -16,4 +15,6 @@ then
     exit 1
 fi
 
-vmw-cli cp "${FILE_NAME}" .
+vmw-cli cp "${FILE_NAME}"
+
+cp /files/${FILE_GLOB} ${DOWNLOAD_DIR}
