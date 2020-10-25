@@ -16,4 +16,4 @@ then
     exit 1
 fi
 
-vmw-cli cp "${FILE_NAME}"
+vmw-cli cp "${FILE_NAME}" .
