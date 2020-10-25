@@ -2,7 +2,7 @@
 set -euxo pipefail
 
 ROOT_DIR=$(pwd)
-cp downloaded-product
+cd downloaded-product
 
 PRODUCT_FILES="$(vmw-cli ls ${PRODUCT_DIRECTORY})"
 
