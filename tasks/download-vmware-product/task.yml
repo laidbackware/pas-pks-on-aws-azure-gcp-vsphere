@@ -15,7 +15,7 @@ params:
   VMWUSER:
   VMWPASS:
   PRODUCT_DIRECTORY: 
-  FILE_GLOB: 
+  FILE_REGEX: 
 
 run:
     path: platform-repo/tasks/download-vmware-product/task.sh

@@ -5,7 +5,7 @@ DOWNLOAD_DIR="$(pwd)/downloaded-product"
 
 PRODUCT_FILES="$(vmw-cli ls ${PRODUCT_DIRECTORY})"
 
-FILE_NAME="$(echo "${PRODUCT_FILES}" |grep ${FILE_GLOB} |cut -d " " -f1)"
+FILE_NAME="$(echo "${PRODUCT_FILES}" |grep ${FILE_REGEX} |cut -d " " -f1)"
 
 if [ `echo "${FILE_NAME}" |wc -l` -ge 2 ]
 then
@@ -17,4 +17,4 @@ fi
 
 vmw-cli cp "${FILE_NAME}"
 
-cp /files/${FILE_GLOB} ${DOWNLOAD_DIR}
+cp /files/* ${DOWNLOAD_DIR}
