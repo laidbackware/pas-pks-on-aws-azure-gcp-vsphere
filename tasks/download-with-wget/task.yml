@@ -9,7 +9,7 @@ image_resource:
     #     repository: hashicorp/terraform
     #     tag: 0.11.14
 inputs:
-- name: config
+- name: platform-repo
 params:
     OUTPUT_FILE_NAME:
         # - Required
@@ -21,4 +21,4 @@ outputs:
 - name: downloaded-product
 
 run:
-    path: config/tasks/download-with-wget/task.sh
+    path: platform-repo/tasks/download-with-wget/task.sh

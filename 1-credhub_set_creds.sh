@@ -79,9 +79,12 @@ AZURE_JSON="{}"
 AWS_JSON="{\"client_id\": \"${AWS_ACCESS_KEY}\", \"client_secret\": \"${AWS_SECRET_KEY}\"}"
 
 # Main section
+VMWARE_DOWNLOAD_USER="$(lpass show vmware-download --username)"
+VMWARE_DOWNLOAD_PASSWORD="$(lpass show vmware-download --password)"
 credhub set -n /concourse/main/git_private_key -t ssh -p "$GIT_PRIVATE_KEY"
 credhub set -n /concourse/main/pivnet_token -t password -w "$PIVNET_TOKEN"
 credhub set -n /concourse/main/s3_secret_access_key -t password -w minio123
+credhub set -n /concourse/main/vmware_download -t user -z "$VMWARE_DOWNLOAD_USER" -w "$VMWARE_DOWNLOAD_PASSWORD"
 
 # AWS section
 FOUNDATION=aws

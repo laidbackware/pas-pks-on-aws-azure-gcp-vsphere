@@ -5,8 +5,8 @@ image_resource:
     source: 
         repository: apnex/vmw-cli
         tag: latest
-# inputs:
-# - name: config
+inputs:
+- name: platform-repo
 # - name: jq-cli
 outputs:
 - name: downloaded-product
@@ -18,6 +18,6 @@ params:
   FILE_GLOB: 
 
 run:
-    path: config/tasks/download-vmware-product/task.sh
+    path: platform-repo/tasks/download-vmware-product/task.sh
 
   #VMware-VCSA-all-7.0.1-16860138
