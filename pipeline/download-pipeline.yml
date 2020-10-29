@@ -257,6 +257,13 @@ resources:
       bucket: ((buckets.vmware_products))
       regexp: VMware-VCSA-all-(.*).iso
 
+-   name: nsxt-ova
+    type: s3
+    source:
+      <<: *s3-common
+      bucket: ((buckets.vmware_products))
+      regexp: nsx-unified-appliance-(.*).ova
+      
 jobs:
 -   name: fetch-platform-automation
     plan:
@@ -328,6 +335,15 @@ jobs:
             -   get: platform-repo
     -   task: prepare-tasks-with-secrets
         <<: *prepare-tasks-with-secrets
+
+    -   task: download-pks-cli
+        <<: *download-product-common
+        params:
+            CONFIG_FILE: download-config/pks-cli-linux.yml
+            VARS_FILES: config/vars/download-vars/download-vars.yml
+    -   put: pks-cli-linux
+        params:
+            file: downloaded-product/*pks-linux-amd64-*
 
     -   task: download-pks-product-and-aws-stemcell
         <<: *download-product-common
@@ -462,47 +478,49 @@ jobs:
                 params:
                     file: downloaded-product/*.pivotal
 
-# Fetch JQ first to allow 
--   name: fetch-jq
-    plan:
-    -   in_parallel:
-            -   get: platform-automation-image
-                params:
-                    unpack: true
-            -   get: platform-automation-tasks
-                params:
-                    unpack: true
-            -   get: jq-cli-github-release
-            -   get: platform-repo
-
-    -   put: jq-cli
-        params:
-            file: jq-cli-github-release/jq-linux6*
-
--   name: fetch-vmware-products
+-   name: fetch-vsphere
     plan:
     -   in_parallel:
             -   get: platform-repo
+
     -   task: download-vcenter-iso
         file: platform-repo/tasks/download-vmware-product/task.yml        
         params:
             VMWUSER: ((vmware_download.username))
             VMWPASS: ((vmware_download.password))
-            PRODUCT_DIRECTORY: vmware_vsphere
-            FILE_GLOB: VMware-VCSA-all-.*\.iso
+            PRODUCT_DIRECTORY: vmware_vsan
+            FILE_REGEX: VMware-VCSA-all-.*\.iso
     -   put: vcenter-iso
         params:
-            file: downloaded-product/VMware-VCSA-all-.*\.iso
+            file: downloaded-product/VMware-VCSA-all-*.iso
+
+-   name: fetch-nsxt
+    plan:
+    -   in_parallel:
+            -   get: platform-repo
+
+    -   task: download-nsxt-ova
+        file: platform-repo/tasks/download-vmware-product/task.yml        
+        params:
+            VMWUSER: ((vmware_download.username))
+            VMWPASS: ((vmware_download.password))
+            PRODUCT_DIRECTORY: vmware_nsx_t_data_center
+            FILE_REGEX: nsx-unified-appliance-.*\.ova
+    -   put: nsxt-ova
+        params:
+            file: downloaded-product/nsx-unified-appliance-*.ova
+
+# Fetch JQ first to allow 
+-   name: fetch-jq
+    plan:
+    -   get: jq-cli-github-release
+    -   put: jq-cli
+        params:
+            file: jq-cli-github-release/jq-linux6*
 
 -   name: fetch-base-tools
     plan:
     -   in_parallel:
-            -   get: platform-automation-image
-                params:
-                    unpack: true
-            -   get: platform-automation-tasks
-                params:
-                    unpack: true
             -   get: uaa-cli-github-release
             -   get: oq-cli-github-release
             -   get: s5cmd-github-release
@@ -510,18 +528,6 @@ jobs:
             -   get: jq-cli
                 passed: ["fetch-jq"]
                 trigger: true
-    -   task: prepare-tasks-with-secrets
-        <<: *prepare-tasks-with-secrets                    
-
-    -   task: download-pks-cli
-        <<: *download-product-common
-        params:
-            CONFIG_FILE: download-config/pks-cli-linux.yml
-            VARS_FILES: config/vars/download-vars/download-vars.yml
-    -   put: pks-cli-linux
-        params:
-            file: downloaded-product/*pks-linux-amd64-*
-
     -   task: download-mc-cli
         file: platform-repo/tasks/download-with-wget/task.yml        
         params:

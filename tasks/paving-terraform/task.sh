@@ -27,14 +27,14 @@ if [ ${IAAS_TYPE} = "vsphere" ]; then
     # export TF_VAR_nsxt_t0_router_name="$(oq -i yaml .logical_routers[0].router_display_name $NSX_VAR_FILE | tr -d '"')"
     cd ${ROOT_DIR}/config/terraform/nsxt
 else # Setup for all cloud providers
-    cd ${ROOT_DIR}/paving-repo/${FOUNDATION}
-    cp ${ROOT_DIR}/config/terraform/backend.tf .
-    EXTRA_TF_OUTPUTS='
-    output "stable_config_yaml" {
-        value     = yamlencode(local.stable_config)
-        sensitive = true
-    }'
-    echo "${EXTRA_TF_OUTPUTS}" >> outputs.tf
+    cd ${ROOT_DIR}/config/terraform/nsxt
+    # cp ${ROOT_DIR}/config/terraform/backend.tf .
+    # EXTRA_TF_OUTPUTS='
+    # output "stable_config_yaml" {
+    #     value     = yamlencode(local.stable_config)
+    #     sensitive = true
+    # }'
+    # echo "${EXTRA_TF_OUTPUTS}" >> outputs.tf
     export TF_VAR_access_key="$(bosh int <(echo ${CLOUD_CREDS}) --path /client_id)"
     export TF_VAR_secret_key="$(bosh int <(echo ${CLOUD_CREDS}) --path  /client_secret)"
     # export TF_VAR_access_key="$(echo ${CLOUD_CREDS} | oq .client_id | tr -d '"' )"
