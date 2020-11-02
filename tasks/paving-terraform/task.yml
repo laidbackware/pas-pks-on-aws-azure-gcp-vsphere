@@ -30,7 +30,7 @@ params:
 inputs:
 - name: config
 - name: terraform
-- name: paving-repo
+# - name: paving-repo
   
 outputs:
 - name: generated-tf-output
