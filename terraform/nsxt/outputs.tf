@@ -27,17 +27,23 @@ locals {
 
     # Shared
     tier_0_id = nsxt_policy_tier0_gateway.tier0_gw.id
+    tier_0_name = nsxt_policy_tier0_gateway.tier0_gw.display_name
 
     #PKS Section
     pks_pods_ip_block_id = nsxt_policy_ip_block.pks_pod_ip_block.id
     pks_nodes_ip_block_id = nsxt_policy_ip_block.pks_node_ip_block.id
     pks_floating_ip_pool_id = nsxt_policy_ip_pool.pks_external_ip_pool.id
+    pks_pods_ip_block_name = nsxt_policy_ip_block.pks_pod_ip_block.display_name
+    pks_nodes_ip_block_name = nsxt_policy_ip_block.pks_node_ip_block.display_name
+    pks_floating_ip_pool_name = nsxt_policy_ip_pool.pks_external_ip_pool.display_name
 
     # PAS Section
     transport_zone_id = data.nsxt_policy_transport_zone.overlay_transport_zone.id
     pas_floating_ip_pool_id = nsxt_policy_ip_pool.pas_external_ip_pool.id
-    pas_container_ip_block = nsxt_policy_ip_block.pas_container_ip_block.id
-
+    pas_container_ip_block_id = nsxt_policy_ip_block.pas_container_ip_block.id
+    transport_zone_name = data.nsxt_policy_transport_zone.overlay_transport_zone.display_name
+    pas_floating_ip_pool_name = nsxt_policy_ip_pool.pas_external_ip_pool.display_name
+    pas_container_ip_block_name = nsxt_policy_ip_block.pas_container_ip_block.display_name
   }
 }
 
