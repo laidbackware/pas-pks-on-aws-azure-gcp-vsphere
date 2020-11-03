@@ -10,7 +10,6 @@ inputs:
 - name: config
 - name: nsxt-ova
 - name: nsxt-ansible
-# - name: yq
 
 params:
   FOUNDATION:

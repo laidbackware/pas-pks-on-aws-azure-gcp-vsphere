@@ -23,8 +23,8 @@ iaas-configurations:
     nsx_ca_certificate: ((nsx_machine_cert.public_key)) #  credhub
     nsx_mode: nsx-t
     nsx_networking_enabled: true
-    nsx_username: ((cloud_creds.client_id)) #  credhub
-    nsx_password: ((cloud_creds.client_secret)) #  credhub
+    nsx_username: ((cloud_creds.nsx_username)) #  credhub
+    nsx_password: ((cloud_creds.nsx_password)) #  credhub
     persistent_datastores_string: ((nested_clusters.compute.nested_hosts_disks.1.create_datastore_name))-esx1 #  vsphere-answers
     ssl_verification_enabled: false
     vcenter_host: ((nested_vcenter.host_name)) #  vsphere-answers
