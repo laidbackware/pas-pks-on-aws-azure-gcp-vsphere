@@ -47,7 +47,7 @@ nested_clusters: # You can add, remove or rename clusters in this section
         # To leave the default OVA disks in place, delete this section.
         nested_hosts_disks: 
             -   size_gb: 400
-                datastore_name: "datastore"
+                datastore_prefix: "datastore"
         
         # Below are properties of the hosting cluster
         hosting_cluster: "Physical" # the cluster where physical ESXi is connected to. The nested VMs will be deployed here
