@@ -71,14 +71,14 @@ nested_hosts: # environment_tag will prepend the name
         nested_cluster: compute # the nested vcenter cluster, which is defined in the clusters section.
 
 distributed_switches:
-    -   name: vds_overlay
+    -   vds_name: vds_overlay
         mtu: 9000
         hosts:
             - esx1
         uplink_quantity: 1
         vmnics:
             - vmnic1        
-    -   name: vds_edge_uplink
+    -   vds_name: vds_edge_uplink
         mtu: 9000
         hosts:
             - esx1
