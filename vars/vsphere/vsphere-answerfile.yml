@@ -55,9 +55,9 @@ nested_clusters: # You can add, remove or rename clusters in this section
         # In vmnic order, these port groups must exist on the physical host
         # Must specify at least 2 port groups, up to a maximum of 10
         vmnic_physical_portgroup_assignment: # In vmnic order, these port groups must exist on the physical host
-            - "Nest"
-            - "TEP"
-            - "TEP"
+            - name: "Nest"
+            - name: "TEP"
+            - name: "TEP"
         resource_pools: # List of resource pools, remove if not needed
             -   TAS-AZ1
             -   TKGI-AZ1
