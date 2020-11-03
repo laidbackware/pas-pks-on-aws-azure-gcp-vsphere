@@ -78,7 +78,7 @@ distributed_switches:
             - compute
         uplink_quantity: 1
         vmnics:
-            - vmnic1        
+            - vmnic1
     -   vds_name: vds_edge_uplink
         mtu: 9000
         vds_version: 7.0.0
@@ -88,6 +88,6 @@ distributed_switches:
         vmnics:
             - vmnic2
         distributed_port_groups:
-            -   name: tep_pg
+            -   port_group_name: tep_pg
                 vlan_id: "0"
 
