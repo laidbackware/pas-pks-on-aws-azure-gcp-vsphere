@@ -36,8 +36,8 @@ nested_clusters: # You can add, remove or rename clusters in this section
         ha_admission_control_enabled: False
         ha_host_monitoring_enabled: disabled
         # Settings below are assigned to each host in the cluster
-        vswitch0_port_group_name: net1
-        vswitch0_port_group_vlan: 0
+        vswitch0_vm_port_group_name: net1
+        vswitch0_vm_port_group_vlan: 0
         mgmt_vlan: 0 # VLAN ID used to tag VMK0
         cpu_cores: 6 # CPU count
         ram_in_gb: 80 # memory
