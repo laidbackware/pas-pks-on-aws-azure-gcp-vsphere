@@ -15,7 +15,7 @@
         hostname: "{{ nsx_manager.hostname }}"
         dns_server: "{{ dns1 }}"
         dns_domain: "{{ domain }}"
-        ntp_server: "{{ nested_vcenter.ntp }}"
+        ntp_server: "{{ ntp }}"
         gateway: "{{ nsx_manager.gateway }}"
         ip_address: "{{ nsx_manager.ip_address }}"
         netmask: "{{ nsx_manager.netmask }}"
