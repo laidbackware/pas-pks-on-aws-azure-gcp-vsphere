@@ -15,7 +15,7 @@ opsman-configuration:
         disk_type: thin                          # example: thin|thick
         private_ip: ((ops_manager_public_ip)) # tf-output
         dns: ((dns1)) # vsphere-answers
-        ntp: ((nested_vcenter.ntp)) # vsphere-answers                    # example: ntp.ubuntu.com
+        ntp: ((ntp)) # vsphere-answers                    # example: ntp.ubuntu.com
         ssh_public_key: ((opsman_ssh.public_key)) # Credhub          # for Ops Manager >= 2.3
         hostname: ((ops_manager_public_ip)) # tf-output
         network: ((management_subnet_name))  # tf-output
