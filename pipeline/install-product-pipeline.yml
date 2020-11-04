@@ -173,12 +173,12 @@ resources:
       <<: *s3-common
       bucket: ((buckets.software))
       regexp: terraform-0.12.(.*)
--   name: yq
-    type: s3
-    source:
-      <<: *s3-common
-      bucket: ((buckets.software))
-      regexp: yq-(.*)
+# -   name: yq
+#     type: s3
+#     source:
+#       <<: *s3-common
+#       bucket: ((buckets.software))
+#       regexp: yq-(.*)
 -   name: oq
     type: s3
     source:
@@ -200,6 +200,13 @@ resources:
         bucket: software
         regexp: s5cmd_(.*)_Linux-64bit.tar.gz
 
+-   name: nsxsearch
+    type: s3
+    source:
+        <<: *s3-common
+        bucket: software
+        regexp: nsxsearch-linux-(.*)
+
 jobs:
 -   name: pave-infra
     serial_groups: [ install ]
@@ -213,7 +220,7 @@ jobs:
             params:
                 unpack: true
         -   get: platform-repo
-        -   get: paving-repo
+        # -   get: paving-repo
         -   get: terraform-12
         # -   get: oq
         # -   get: jq
@@ -610,11 +617,70 @@ jobs:
             trigger: true
         -   get: tf-output-yaml
             passed: [ upload-and-stage-((product))  ]
-        -   get: yq
+        # -   get: yq
+        -   get: jq
+        -   get: nsxsearch
     -   task: add-terraform-ansible-yaml
         <<: *add-terraform-ansible-yaml  
     -   task: prepare-tasks-with-secrets
         <<: *prepare-tasks-with-secrets
+
+    -   task: add-nsxt-manager-object-ids
+        image: platform-automation-image
+        config:
+            platform: linux
+            inputs: 
+            - name: platform-repo
+            - name: nsxsearch
+            - name: tf-output-yaml
+            - name: jq
+            params:
+                FOUNDATION: ((foundation))
+                CLOUD_CREDS_JSON: ((cloud_creds))
+            outputs:
+            - name: platform-repo
+            run:
+                path: bash
+                args:
+                - -c
+                - |
+                    set -euxo pipefail
+                    if [ ! ${FOUNDATION} = "vsphere" ]; then
+                      echo "Task only needed for vsphere deployments. Exiting"
+                      exit 0
+                    fi
+
+                    NSX_HOSTNAME=$(bosh int platform-repo/vars/${FOUNDATION}/tf-output.yml --path /nsxt_host)
+                    NSX_USERNAME=$(bosh int <(echo $CLOUD_CREDS_JSON) --path /nsx_username)
+                    NSX_PASSWORD=$(bosh int <(echo $CLOUD_CREDS_JSON) --path /nsx_password)
+                    nsxsearch="./nsxsearch/nsxsearch-linux-* -e $NSX_HOSTNAME -k -u $NSX_USERNAME -p $NSX_PASSWORD  -m "
+                    jq="jq/jq-linux*"
+                    chmod +x jq/jq-linux* ./nsxsearch/nsxsearch-linux-*
+
+                    TF_YAML="platform-repo/vars/${FOUNDATION}/tf-output.yml"
+                    NEW_OBJECTS="# Object IDs collected via search"
+
+                    # $1=key name $2=object type
+                    lookup_object() {
+                        OBJECT_NAME=$(bosh int ${TF_YAML} --path /${1})
+                        OBJECT_ID="$($nsxsearch -o ${2} -n ${OBJECT_NAME} | $jq .results[0].id)"
+                        NEW_OBJECTS="${NEW_OBJECTS}\n\"${1//_name/_id}\": ${OBJECT_ID}"
+                    }
+
+                    lookup_object pas_container_ip_block_name IpBlock
+                    lookup_object pas_floating_ip_pool_name IpPool
+                    lookup_object pks_floating_ip_pool_name IpPool
+                    lookup_object pks_nodes_ip_block_name IpBlock
+                    lookup_object pks_pods_ip_block_name IpBlock
+                    lookup_object tier_0_name LogicalRouter
+                    lookup_object transport_zone_name TransportZone
+
+                    sed '/_id/d' platform-repo/vars/${FOUNDATION}/tf-output.yml
+
+                    echo -e "$NEW_OBJECTS"
+
+                    echo -e "$NEW_OBJECTS" >> platform-repo/vars/${FOUNDATION}/tf-output.yml
+
     -   task: configure-((product))
         image: platform-automation-image
         file: platform-automation-tasks/tasks/configure-product.yml
@@ -752,8 +818,6 @@ jobs:
                 PRODUCT: ((product))
                 DOMAIN: ((domain))
                 S3_ENDPOINT: "((s3_endpoint))"
-                # TF_VAR_aws_access_key: ((aws_client.username))
-                # TF_VAR_aws_secret_key: ((aws_client.password))
                 IAAS_TYPE: ((iaas_stemcell))
             input_mapping:
                 config: platform-repo
@@ -766,14 +830,9 @@ jobs:
             STATE_BUCKET_SECRET_KEY: ((s3_secret_access_key))
             STATE_BUCKET_KEY_ID: ((s3_access_key_id))
             STATE_BUCKET: ((buckets.terraform_state))
-            # AWS_SECRET_ACCESS_KEY: ((s3_secret_access_key))
-            # AWS_ACCESS_KEY_ID: ((s3_access_key_id))
-            # BUCKET: ((buckets.terraform_state))
             FOUNDATION: ((foundation))
             PRODUCT: ((product))
             S3_ENDPOINT: "((s3_endpoint))"
-            # TF_VAR_access_key: ((cloud_creds.client_id))
-            # TF_VAR_secret_key: ((cloud_creds.client_secret))
             CLOUD_CREDS: ((cloud_creds)) 
             TF_VAR_hosted_zone: "((domain))."
             DOMAIN: ((domain))

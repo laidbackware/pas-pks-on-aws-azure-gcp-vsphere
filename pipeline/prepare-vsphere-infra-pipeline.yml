@@ -20,8 +20,8 @@ resources:
         type: git
         source:
             private_key: ((git_private_key.private_key))
-            uri: git@github.com:laidbackware/vsphere-lab-deploy.git
-            branch: master
+            uri: https://github.com/laidbackware/vsphere-ansible-lab-builder.git
+            branch: main
 
     -   name: nsxt-ansible
         type: git
@@ -34,13 +34,13 @@ resources:
         # version:
         #     ref: 2f72f26291bb11a7fa51da5bf4c97ae63b0de064
             
-    -   name: esxi-iso
+    -   name: esxi-ova
         type: s3
         source:
             <<: *s3-common
             bucket: ((buckets.vmware_products))
-            regexp: VMware-VMvisor-Installer-((vsphere_version)).(.*).iso
-    
+            regexp: Nested_ESXi((vsphere_version)).(.*)_Appliance_Template_v1.ova
+            
     -   name: vcenter-iso
         type: s3
         source:
@@ -56,24 +56,24 @@ resources:
             regexp: nsx-unified-appliance-((nsxt_version)).(.*).ova
 
 jobs:
-    -   name: create-esxi-image
-        serial: true
-        plan:
-            -   in_parallel:
-                -   get: configuration
-                -   get: vsphere-ansible-repo
-                -   get: esxi-iso
-            -   task: generate-and-upload
-                params:
-                    VSPHERE_ANSWERS: vars/((foundation))/vsphere-answerfile.yml
-                    NESTED_HOST_PASSWORD: ((nested_host_password))
-                    PARENT_VCENTER_USERNAME: ((parent_vcenter_credentials.username))
-                    PARENT_VCENTER_PASSWORD: ((parent_vcenter_credentials.password))
-                    NESTED_VCENTER_PASSWORD:  ((nested_vcenter_credentials.password))
-                    VSPHERE_VERSION: ((vsphere_version))
-                input_mapping:
-                    config: configuration
-                file: configuration/tasks/pave-vsphere-esxi-iso/task.yml
+    # -   name: create-esxi-image
+    #     serial: true
+    #     plan:
+    #         -   in_parallel:
+    #             -   get: configuration
+    #             -   get: vsphere-ansible-repo
+    #             -   get: esxi-iso
+    #         -   task: generate-and-upload
+    #             params:
+    #                 VSPHERE_ANSWERS: vars/((foundation))/vsphere-answerfile.yml
+    #                 NESTED_HOST_PASSWORD: ((nested_host_password))
+    #                 PARENT_VCENTER_USERNAME: ((parent_vcenter_credentials.username))
+    #                 PARENT_VCENTER_PASSWORD: ((parent_vcenter_credentials.password))
+    #                 NESTED_VCENTER_PASSWORD:  ((nested_vcenter_credentials.password))
+    #                 VSPHERE_VERSION: ((vsphere_version))
+    #             input_mapping:
+    #                 config: configuration
+    #             file: configuration/tasks/pave-vsphere-esxi-iso/task.yml
 
     -   name: pave-vsphere
         serial: true
@@ -83,6 +83,7 @@ jobs:
                 -   get: configuration
                 -   get: vsphere-ansible-repo
                 -   get: vcenter-iso
+                -   get: esxi-ova
             -   task: deploy-vsphere
                 params:
                     VSPHERE_ANSWERS: vars/((foundation))/vsphere-answerfile.yml
@@ -91,7 +92,6 @@ jobs:
                     PARENT_VCENTER_USERNAME: ((parent_vcenter_credentials.username))
                     PARENT_VCENTER_PASSWORD: ((parent_vcenter_credentials.password))
                     NESTED_VCENTER_PASSWORD:  ((nested_vcenter_credentials.password))
-                    VSPHERE_VERSION: ((vsphere_version))
                 input_mapping:
                     config: configuration
                 attempts: 3
@@ -111,7 +111,7 @@ jobs:
                 params:
                     FOUNDATION: ((foundation))
                     NESTED_HOST_PASSWORD: ((nested_host_password))
-                    NSX_PASSWORD: ((nsx_password))
+                    NSX_PASSWORD: ((cloud_creds.nsx_password))
                     PARENT_VCENTER_USERNAME: ((parent_vcenter_credentials.username))
                     PARENT_VCENTER_PASSWORD: ((parent_vcenter_credentials.password))
                     NESTED_VCENTER_PASSWORD:  ((nested_vcenter_credentials.password))

@@ -6,7 +6,6 @@ ntp: time1.google.com
 disk_mode: thin #How all disks should be deployed
 nested_host_password: "{{ lookup('env', 'NESTED_HOST_PASSWORD') }}"
 
-
 hosting_vcenter: # This is the vCenter which will be the target for nested vCenters and ESXi hosts
     ip: "192.168.0.113"
     user: "{{ lookup('env', 'PARENT_VCENTER_USERNAME') }}"
@@ -27,6 +26,16 @@ nested_vcenter: # the vCenter appliance that will be deployed
     hosting_network: "Net1" # Parent port group where the vCenter VM will be deployed
     hosting_cluster: "Physical" # Parent cluster where the vCenter VM will be deployed
     hosting_datastore: "NVME" # Parent datastore where the vCenter VM will be deployed
+
+# You can add, remove or rename the nested ESXi below
+nested_hosts: # environment_tag will prepend the name
+    esx1: # environment_tag will prepend the name
+        ip: 192.168.0.192 # IP will be used as the hostname in the nested vCenter
+        mask: 255.255.255.0
+        gw: 192.168.0.1
+        nested_cluster: compute # the nested vcenter cluster, which is defined in the clusters section.
+
+## No need to edit below this point
 
 nested_clusters: # You can add, remove or rename clusters in this section
     compute: # This name will by used in the nested vCenter
@@ -61,14 +70,6 @@ nested_clusters: # You can add, remove or rename clusters in this section
         resource_pools: # List of resource pools, remove if not needed
             -   TAS-AZ1
             -   TKGI-AZ1
-        
-# You can add, remove or rename the nested ESXi below
-nested_hosts: # environment_tag will prepend the name
-    esx1: # environment_tag will prepend the name
-        ip: 192.168.0.192 # IP will be used as the hostname in the nested vCenter
-        mask: 255.255.255.0
-        gw: 192.168.0.1
-        nested_cluster: compute # the nested vcenter cluster, which is defined in the clusters section.
 
 distributed_switches:
     -   vds_name: vds_overlay
