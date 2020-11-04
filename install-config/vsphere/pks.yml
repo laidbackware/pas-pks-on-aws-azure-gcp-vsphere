@@ -10,7 +10,7 @@ product-properties:
   .properties.cloud_provider.vsphere.vcenter_dc:
     value: ((nested_vcenter.datacenter)) #VS
   .properties.cloud_provider.vsphere.vcenter_ds:
-    value: ((nested_clusters.compute.nested_hosts_disks.1.create_datastore_name))-esx1 #VS
+    value: ((nested_clusters.compute.nested_hosts_disks.0.datastore_prefix))-esx1 #VS
   .properties.cloud_provider.vsphere.vcenter_ip:
     value: ((nested_vcenter.host_name)) #VS
   .properties.cloud_provider.vsphere.vcenter_master_creds:
