@@ -20,26 +20,27 @@ resources:
         type: git
         source:
             private_key: ((git_private_key.private_key))
-            uri: git@github.com:laidbackware/vsphere-lab-deploy.git
-            branch: master
+            uri: https://github.com/laidbackware/vsphere-ansible-lab-builder.git
+            branch: main
 
     -   name: nsxt-ansible
         type: git
         source:
             private_key: ((git_private_key.private_key))
-            uri: git@github.com:vmware/ansible-for-nsxt.git
-            branch: master # Using dev branch as features needed for NSX-T 2.5
-        version:
-            ref: 2f72f26291bb11a7fa51da5bf4c97ae63b0de064
-            # ref: 6fb698168fd8c5592575d1a9a33640eeb920f76e # Pinning to commit as dev branch
-
-    -   name: esxi-iso
+            # uri: git@github.com:vmware/ansible-for-nsxt.git
+            # branch: master # Using dev branch as features needed for NSX-T 2.5
+            uri: git@github.com:laidbackware/ansible-for-nsxt.git
+            branch: compute-manager-trust # Using fork to allow compute manager trust.
+        # version:
+        #     ref: 2f72f26291bb11a7fa51da5bf4c97ae63b0de064
+            
+    -   name: esxi-ova
         type: s3
         source:
             <<: *s3-common
             bucket: ((buckets.vmware_products))
-            regexp: VMware-VMvisor-Installer-((vsphere_version)).(.*).iso
-    
+            regexp: Nested_ESXi((vsphere_version)).(.*)_Appliance_Template_v1.ova
+            
     -   name: vcenter-iso
         type: s3
         source:
@@ -55,25 +56,6 @@ resources:
             regexp: nsx-unified-appliance-((nsxt_version)).(.*).ova
 
 jobs:
-    -   name: create-esxi-image
-        serial: true
-        plan:
-            -   in_parallel:
-                -   get: configuration
-                -   get: vsphere-ansible-repo
-                -   get: esxi-iso
-            -   task: generate-and-upload
-                params:
-                    VSPHERE_ANSWERS: vars/((foundation))/vsphere-answerfile.yml
-                    NESTED_HOST_PASSWORD: ((nested_host_password))
-                    PARENT_VCENTER_USERNAME: ((parent_vcenter_credentials.username))
-                    PARENT_VCENTER_PASSWORD: ((parent_vcenter_credentials.password))
-                    NESTED_VCENTER_PASSWORD:  ((nested_vcenter_password))
-                    VSPHERE_VERSION: ((vsphere_version))
-                input_mapping:
-                    config: configuration
-                file: configuration/tasks/pave-vsphere-esxi-iso/task.yml
-
     -   name: pave-vsphere
         serial: true
         serial_groups: [ install ]
@@ -82,6 +64,7 @@ jobs:
                 -   get: configuration
                 -   get: vsphere-ansible-repo
                 -   get: vcenter-iso
+                -   get: esxi-ova
             -   task: deploy-vsphere
                 params:
                     VSPHERE_ANSWERS: vars/((foundation))/vsphere-answerfile.yml
@@ -89,8 +72,7 @@ jobs:
                     NESTED_HOST_PASSWORD: ((nested_host_password))
                     PARENT_VCENTER_USERNAME: ((parent_vcenter_credentials.username))
                     PARENT_VCENTER_PASSWORD: ((parent_vcenter_credentials.password))
-                    NESTED_VCENTER_PASSWORD:  ((nested_vcenter_password))
-                    VSPHERE_VERSION: ((vsphere_version))
+                    NESTED_VCENTER_PASSWORD:  ((nested_vcenter_credentials.password))
                 input_mapping:
                     config: configuration
                 attempts: 3
@@ -110,10 +92,10 @@ jobs:
                 params:
                     FOUNDATION: ((foundation))
                     NESTED_HOST_PASSWORD: ((nested_host_password))
-                    NSX_PASSWORD: ((nsx_password))
+                    NSX_PASSWORD: ((cloud_creds.nsx_password))
                     PARENT_VCENTER_USERNAME: ((parent_vcenter_credentials.username))
                     PARENT_VCENTER_PASSWORD: ((parent_vcenter_credentials.password))
-                    NESTED_VCENTER_PASSWORD:  ((nested_vcenter_password))
+                    NESTED_VCENTER_PASSWORD:  ((nested_vcenter_credentials.password))
                     NSX_API_PUBLIC_KEY: ((nsx_machine_cert.public_key))
                     NSX_API_PRIVATE_KEY: ((nsx_machine_cert.private_key))
                     NSXT_LICENSE_KEY: ((nsxt_license_key))

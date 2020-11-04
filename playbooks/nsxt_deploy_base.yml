@@ -15,7 +15,7 @@
         hostname: "{{ nsx_manager.hostname }}"
         dns_server: "{{ dns1 }}"
         dns_domain: "{{ domain }}"
-        ntp_server: "{{ nested_vcenter.ntp }}"
+        ntp_server: "{{ ntp }}"
         gateway: "{{ nsx_manager.gateway }}"
         ip_address: "{{ nsx_manager.ip_address }}"
         netmask: "{{ nsx_manager.netmask }}"
@@ -104,7 +104,7 @@
         validate_certs: False
         resource_type: UplinkHostSwitchProfile
         display_name: "{{ item.display_name }}"
-        mtu: "{{ item.mtu }}"
+        mtu: "{{ item.mtu | default(omit)}}"
         teaming: "{{ item.teaming }}"
         transport_vlan: "{{ item.transport_vlan }}"
         state: "present"
@@ -124,6 +124,7 @@
             credential_type: UsernamePasswordLoginCredential
             username: "{{ nested_vcenter.user }}"
             password: "{{ nested_vcenter.password }}"
+          set_as_oidc_provider: true
           state: present
       retries: 12
       delay: 10
@@ -142,7 +143,7 @@
         host_switch_spec:
           resource_type: StandardHostSwitchSpec
           host_switches: "{{ item.host_switches }}"
-        transport_zone_endpoints: "{{ item.transport_zone_endpoints }}"
+        transport_zone_endpoints: "{{ item.transport_zone_endpoints | default(omit)}}"
         state: present
       with_items:
         - "{{ transport_node_profiles }}"
@@ -174,9 +175,9 @@
           resource_type: "StandardHostSwitchSpec"
           host_switches:
           - host_switch_profiles:
-            - name: "{{ uplink_profiles[0].display_name }}"
+            - name: "{{ uplink_profiles[1].display_name }}"
               type: UplinkHostSwitchProfile
-            host_switch_name: sw_over
+            host_switch_name: vds_overlay
             pnics:
             - device_name: "fp-eth2"
               uplink_name: "uplink-1"
@@ -184,7 +185,7 @@
               resource_type: StaticIpPoolSpec
               ip_pool_name: "tep-pool"
           - host_switch_profiles:
-            - name: "{{ uplink_profiles[1].display_name }}"
+            - name: "{{ uplink_profiles[2].display_name }}"
               type: UplinkHostSwitchProfile
             host_switch_name: sw_vlan
             pnics:

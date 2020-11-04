@@ -7,11 +7,6 @@ resource "nsxt_lb_http_monitor" "pas-web-monitor" {
   request_url           = "/health"
   request_version       = "HTTP_VERSION_1_1"
   response_status_codes = [200]
-
-  tag {
-    scope = "terraform"
-    tag   = var.env_name
-  }
 }
 
 resource "nsxt_lb_http_monitor" "pas-tcp-monitor" {
@@ -22,10 +17,6 @@ resource "nsxt_lb_http_monitor" "pas-tcp-monitor" {
   request_url           = "/health"
   request_version       = "HTTP_VERSION_1_1"
 
-  tag {
-    scope = "terraform"
-    tag   = var.env_name
-  }
   response_status_codes = [200]
 }
 
@@ -33,11 +24,6 @@ resource "nsxt_lb_tcp_monitor" "pas-ssh-monitor" {
   description           = "The Active Health Monitor (healthcheck) for SSH traffic."
   display_name          = var.nsxt_pas_ssh_monitor_name
   monitor_port          = 2222
-
-  tag {
-    scope = "terraform"
-    tag   = var.env_name
-  }
 }
 # }
 
@@ -48,15 +34,10 @@ resource "nsxt_lb_pool" "pas-web-pool" {
   algorithm                = "ROUND_ROBIN"
   tcp_multiplexing_enabled = false
   active_monitor_id        = nsxt_lb_http_monitor.pas-web-monitor.id
-
 	snat_translation {
 		type          = "SNAT_AUTO_MAP"
 	}
 
-  tag {
-    scope = "terraform"
-    tag   = var.env_name
-  }
 }
 
 resource "nsxt_lb_pool" "pas-tcp-pool" {
@@ -70,10 +51,6 @@ resource "nsxt_lb_pool" "pas-tcp-pool" {
 		type          = "TRANSPARENT"
 	}
 
-  tag {
-    scope = "terraform"
-    tag   = var.env_name
-  }
 }
 
 resource "nsxt_lb_pool" "pas-ssh-pool" {
@@ -87,10 +64,6 @@ resource "nsxt_lb_pool" "pas-ssh-pool" {
 		type          = "TRANSPARENT"
 	}
 
-  tag {
-    scope = "terraform"
-    tag   = var.env_name
-  }
 }
 # }
 
@@ -100,10 +73,6 @@ resource "nsxt_lb_fast_tcp_application_profile" "pas-lb-tcp-application-profile"
   close_timeout     = "8"
   idle_timeout      = "1800"
 
-  tag {
-    scope = "terraform"
-    tag   = var.env_name
-  }
 }
 
 resource "nsxt_lb_tcp_virtual_server" "pas-web-virtual-server" {
@@ -114,10 +83,6 @@ resource "nsxt_lb_tcp_virtual_server" "pas-web-virtual-server" {
   ports                      = var.nsxt_pas_web_virtual_server_ports
   pool_id                    = nsxt_lb_pool.pas-web-pool.id
 
-  tag {
-    scope = "terraform"
-    tag   = var.env_name
-  }
 }
 
 resource "nsxt_lb_tcp_virtual_server" "pas-tcp-virtual-server" {
@@ -128,10 +93,6 @@ resource "nsxt_lb_tcp_virtual_server" "pas-tcp-virtual-server" {
   ports                      = var.nsxt_pas_tcp_virtual_server_ports
   pool_id                    = nsxt_lb_pool.pas-tcp-pool.id
 
-  tag {
-    scope = "terraform"
-    tag   = var.env_name
-  }
 }
 
 resource "nsxt_lb_tcp_virtual_server" "pas-ssh-virtual-server" {
@@ -142,10 +103,6 @@ resource "nsxt_lb_tcp_virtual_server" "pas-ssh-virtual-server" {
   ports                      = var.nsxt_pas_ssh_virtual_server_ports
   pool_id                    = nsxt_lb_pool.pas-ssh-pool.id
 
-  tag {
-    scope = "terraform"
-    tag   = var.env_name
-  }
 }
 # }
 
@@ -163,8 +120,4 @@ resource "nsxt_lb_service" "pas-lb" {
     "${nsxt_lb_tcp_virtual_server.pas-ssh-virtual-server.id}"
     ]
 
-  tag {
-    scope = "terraform"
-    tag   = var.env_name
-  }
 }

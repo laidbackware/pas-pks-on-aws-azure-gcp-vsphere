@@ -13,6 +13,9 @@ VMware-ovftool-*
 # Local .terraform directories
 **/.terraform/*
 
+tf.plan
+.swp
+
 # .tfstate files
 *.tfstate
 *.tfstate.*

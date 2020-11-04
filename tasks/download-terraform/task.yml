@@ -6,10 +6,10 @@ image_resource:
         repository: laidbackware/ansible-aio
         tag: latest
 inputs:
-- name: config
+- name: platform-repo
 - name: jq-cli
 outputs:
 - name: downloaded-product
 
 run:
-    path: config/tasks/download-terraform/task.sh
+    path: platform-repo/tasks/download-terraform/task.sh

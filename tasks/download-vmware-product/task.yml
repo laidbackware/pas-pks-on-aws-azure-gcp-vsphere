@@ -1,0 +1,23 @@
+---
+platform: linux
+image_resource:
+    type: docker-image
+    source: 
+        repository: apnex/vmw-cli
+        tag: latest
+inputs:
+- name: platform-repo
+# - name: jq-cli
+outputs:
+- name: downloaded-product
+
+params:
+  VMWUSER:
+  VMWPASS:
+  PRODUCT_DIRECTORY: 
+  FILE_REGEX: 
+
+run:
+    path: platform-repo/tasks/download-vmware-product/task.sh
+
+  #VMware-VCSA-all-7.0.1-16860138

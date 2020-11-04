@@ -1,6 +1,9 @@
 # Routers
 env_name = "vsphere"
 
+nsxt_t0_router_uplink_ip = "192.168.0.195/24"
+nsxt_t0_static_route_next_hop = "192.168.0.1"
+
 infrastructure_cidr     = "10.1.0.0/26"
 deployment_cidr         = "10.1.0.64/26"
 services_cidr           = "10.1.0.128/26"

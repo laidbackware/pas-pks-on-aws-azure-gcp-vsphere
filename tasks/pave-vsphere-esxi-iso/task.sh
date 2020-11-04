@@ -4,8 +4,6 @@ set -euxo pipefail
 
 export ROOT_DIR="$(pwd)"
 
-# config/scripts/add-ansible-secrets.sh
-
 TMPDIR=$(mktemp -d) || exit 1
 echo "Temp dir is ${TMPDIR}"
 

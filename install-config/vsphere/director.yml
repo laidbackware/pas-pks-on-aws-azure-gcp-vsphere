@@ -1,15 +1,15 @@
 az-configuration:
 -   name: director
     clusters:
-    -   cluster: ((nested_hosts.esx1.cluster)) #  vsphere-answers
+    -   cluster: ((nested_hosts.esx1.nested_cluster)) #  vsphere-answers
 -   name: PAS-AZ1
     clusters:
-    -   cluster: ((nested_hosts.esx1.cluster)) #  vsphere-answers
-        resource_pool: ((resource_pools.pas)) #  vsphere-answers
+    -   cluster: ((nested_hosts.esx1.nested_cluster)) #  vsphere-answers
+        # resource_pool: ((nested_clusters.compute.resource_pools.0)) #  vsphere-answers
 -   name: PKS-AZ1
     clusters:
-    -   cluster: ((nested_hosts.esx1.cluster)) #  vsphere-answers
-        resource_pool: ((resource_pools.pks)) #  vsphere-answers
+    -   cluster: ((nested_hosts.esx1.nested_cluster)) #  vsphere-answers
+        # resource_pool: ((nested_clusters.compute.resource_pools.1)) #  vsphere-answers
 iaas-configurations:
 -   additional_cloud_properties: {}
     bosh_disk_path: ((bosh_disk_path)) # common-vars
@@ -17,19 +17,19 @@ iaas-configurations:
     bosh_vm_folder: ((bosh_vm_folder)) # common-vars
     datacenter: ((nested_vcenter.datacenter)) #  vsphere-answers
     disk_type: ((disk_type)) # common-vars
-    ephemeral_datastores_string: ((nested_datastore)) #  credhub
+    ephemeral_datastores_string: ((nested_clusters.compute.nested_hosts_disks.0.datastore_prefix))-esx1 #  credhub
     name: default
     nsx_address: ((nsxt_host)) # tf-output
     nsx_ca_certificate: ((nsx_machine_cert.public_key)) #  credhub
     nsx_mode: nsx-t
     nsx_networking_enabled: true
-    nsx_username: ((cloud_creds.client_id)) #  credhub
-    nsx_password: ((cloud_creds.client_secret)) #  credhub
-    persistent_datastores_string: ((nested_datastore)) #  vsphere-answers
+    nsx_username: ((cloud_creds.nsx_username)) #  credhub
+    nsx_password: ((cloud_creds.nsx_password)) #  credhub
+    persistent_datastores_string: ((nested_clusters.compute.nested_hosts_disks.0.datastore_prefix))-esx1 #  vsphere-answers
     ssl_verification_enabled: false
     vcenter_host: ((nested_vcenter.host_name)) #  vsphere-answers
     vcenter_username: administrator@vsphere.local #  vsphere-answers
-    vcenter_password: ((nested_vcenter_password)) #  vsphere-answers
+    vcenter_password: ((nested_vcenter_credentials.password)) #  vsphere-answers
 network-assignment:
     network:
         name: ((management_subnet_name)) # tf-output
@@ -50,12 +50,12 @@ networks-configuration:
             - PAS-AZ1
             - PKS-AZ1
             - director
-    -   name: ((pas_subnet_name)) # tf-output
+    -   name: ((deployment_subnet_name)) # tf-output
         subnets:
-        -   iaas_identifier: ((pas_subnet_name)) # tf-output
-            cidr: ((pas_subnet_cidr)) # tf-output
+        -   iaas_identifier: ((deployment_subnet_name)) # tf-output
+            cidr: ((deployment_subnet_cidr)) # tf-output
             dns: ((dns1)) #  vsphere-answers
-            gateway: ((pas_subnet_gateway)) # tf-output
+            gateway: ((deployment_subnet_gateway)) # tf-output
             # reserved_ip_ranges: ((ops_manager_public_ip))
             availability_zone_names:
             - PAS-AZ1
@@ -79,7 +79,7 @@ properties-configuration:
         keep_unreachable_vms: false
         local_blobstore_options:
             tls_enabled: true
-        ntp_servers_string: 192.168.0.110
+        ntp_servers_string: ((ntp))
         post_deploy_enabled: true
         resurrector_enabled: true
         retry_bosh_deploys: false

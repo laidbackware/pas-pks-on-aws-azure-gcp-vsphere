@@ -1,68 +1,93 @@
+# vsphere_version: "{{ lookup('env', 'VSPHERE_VERSION') }}"
 dns1: '192.168.0.110'
 dns2: '192.168.0.1'
 domain: 'home.local'
+ntp: time1.google.com
+disk_mode: thin #How all disks should be deployed
+nested_host_password: "{{ lookup('env', 'NESTED_HOST_PASSWORD') }}"
 
-vsphere_version: "{{ lookup('env', 'VSPHERE_VERSION') }}"
+hosting_vcenter: # This is the vCenter which will be the target for nested vCenters and ESXi hosts
+    ip: "192.168.0.113"
+    user: "{{ lookup('env', 'PARENT_VCENTER_USERNAME') }}"
+    password: "{{ lookup('env', 'PARENT_VCENTER_PASSWORD') }}"
+    datacenter: "Home" # Target for all VM deployment
 
 nested_vcenter: # the vCenter appliance that will be deployed
-  ip: '192.168.0.191' # vCenter ip address 
-  mask: '24'
-  gw: '192.168.0.1'
-  host_name: '192.168.0.191' # FQDN if there is working DNS server, otherwise put the ip as a name
-  thin: true
-  user: 'administrator@vsphere.local' 
-  password: "{{ lookup('env', 'NESTED_VCENTER_PASSWORD') }}"
-  sso_domain: 'vsphere.local'
-  datacenter: 'Lab' # Nested DC to create after deployment
-  ntp: time1.google.com
-  # Below are properties of parent cluster
-  network: 'Net1' # Parent port group where the vCenter VM will be deployed
-  datastore: 'NVME' # Parent datastore where the vCenter VM will be deployed
-  cluster: 'Physical' # Parent cluster where the vCenter VM will be deployed
-
-parent_vcenter: # This is the vCenter which will be the target for nested vCenters and ESXi hosts
-  ip: '192.168.0.113' 
-  user: "{{ lookup('env', 'PARENT_VCENTER_USERNAME') }}"
-  password: "{{ lookup('env', 'PARENT_VCENTER_PASSWORD') }}"
-  datacenter: 'Home' # Target for all VM deployment
-  datastore: 'NVME' # Datastore target for nested ESXi VMs
+    ip: '192.168.0.191' # vCenter ip address 
+    mask: '24'
+    gw: '192.168.0.1'
+    host_name: '192.168.0.191' # FQDN if there is working DNS server, otherwise put the ip as a name
+    thin: true
+    user: 'administrator@vsphere.local' 
+    password: "{{ lookup('env', 'NESTED_VCENTER_PASSWORD') }}"
+    datacenter: 'Lab' # Nested DC to create after deployment
+    # Below are properties of parent cluster
+    hosting_network: "Net1" # Parent port group where the vCenter VM will be deployed
+    hosting_cluster: "Physical" # Parent cluster where the vCenter VM will be deployed
+    hosting_datastore: "NVME" # Parent datastore where the vCenter VM will be deployed
 
 # You can add, remove or rename the nested ESXi below
 nested_hosts: # environment_tag will prepend the name
-  esx1: # environment_tag will prepend the name
-    ip: 192.168.0.192
-    mask: 255.255.255.0
-    gw: 192.168.0.1
-    cluster: compute # the nested vcenter cluster, which is defined in the clusters section.
-    vlan: 0 # the external vlan id, need to have connectivity with the vCenter
-    cpu: 6 # CPU count
-    ram: 131032 # in MB
-    hdd: 500 # in GB. Disk to be used for boot an local datastore
-    # Below are properties of parent cluster
-    parent_cluster: 'Physical' # the when the VM ESXi guest will be deployed
-    vmk_portgroup: 'Nest' # Port group to use on the physical host
-    tep_portgroup: 'TEP' # Port group to use on the physical host
+    esx1: # environment_tag will prepend the name
+        ip: 192.168.0.192 # IP will be used as the hostname in the nested vCenter
+        mask: 255.255.255.0
+        gw: 192.168.0.1
+        nested_cluster: compute # the nested vcenter cluster, which is defined in the clusters section.
 
-### No need to edit below this marker ###
+## No need to edit below this point
 
-nested_host_credentials: # Credentials set in kickstart file inside the custom ISO
-  user: 'root' 
-  password: "{{ lookup('env', 'NESTED_HOST_PASSWORD') }}"
+nested_clusters: # You can add, remove or rename clusters in this section
+    compute: # This name will by used in the nested vCenter
+        drs: True
+        # HA can only be enabled if there is are datastores accessible by all hosts.
+        ha_enabled: True
+        ha_admission_control_enabled: False
+        ha_host_monitoring_enabled: disabled
+        # Settings below are assigned to each host in the cluster
+        vswitch0_vm_port_group_name: net1
+        vswitch0_vm_port_group_vlan: 0
+        mgmt_vlan: 0 # VLAN ID used to tag VMK0
+        cpu_cores: 6 # CPU count
+        ram_in_gb: 80 # memory
+        # In order list of disks to assign to the nested host. All will be marked as SSD.
+        # Datastore names will be automatically be pre-pended with the hostname. E.g esx1
+        # If the datastore_name property is removed the disk will not be set as a datastore
+        # To leave the default OVA disks in place, delete this section.
+        nested_hosts_disks: 
+            -   size_gb: 400
+                datastore_prefix: "datastore"
+        
+        # Below are properties of the hosting cluster
+        hosting_cluster: "Physical" # the cluster where physical ESXi is connected to. The nested VMs will be deployed here
+        hosting_datastore: "NVME" # Datastore target for nested ESXi VMs
+        # In vmnic order, these port groups must exist on the physical host
+        # Must specify at least 2 port groups, up to a maximum of 10
+        vmnic_physical_portgroup_assignment: # In vmnic order, these port groups must exist on the physical host
+            - name: "Nest"
+            - name: "TEP"
+            - name: "TEP"
+        resource_pools: # List of resource pools, remove if not needed
+            -   TAS-AZ1
+            -   TKGI-AZ1
 
-clusters: # You can add, remove or rename clusters in this section
-  compute:
-    drs: True
+distributed_switches:
+    -   vds_name: vds_overlay
+        mtu: 9000
+        vds_version: 7.0.0
+        clusters:
+            - compute
+        uplink_quantity: 1
+        vmnics:
+            - vmnic1
+    -   vds_name: vds_edge_uplink
+        mtu: 9000
+        vds_version: 7.0.0
+        clusters:
+            - compute
+        uplink_quantity: 1
+        vmnics:
+            - vmnic2
+        distributed_port_groups:
+            -   port_group_name: tep_pg
+                vlan_id: "0"
 
-nested_datastore: datastore1 # Currently unused, but referenced by platform automation
-
-nested_network_names:
-  main_pg: net1 # Port group name to be assigned to vSwitch0
-  tep_pg: tep_pg # Port group name to be assigned to vSwitch1
-
-resource_pools:
-  pas: PAS-AZ1
-  pks: PKS-AZ1
-
-
-# Todo
-# rename the datastore

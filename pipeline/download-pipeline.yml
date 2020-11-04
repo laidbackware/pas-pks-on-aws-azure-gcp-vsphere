@@ -5,8 +5,8 @@ anchors:
         file: platform-automation-tasks/tasks/prepare-tasks-with-secrets.yml
         input_mapping:
             tasks: platform-automation-tasks
-            config: configuration
-            vars: configuration
+            config: platform-repo
+            vars: platform-repo
         output_mapping:
             tasks: platform-automation-tasks
         params:
@@ -24,7 +24,7 @@ anchors:
 - download-product-common: &download-product-common
         image: platform-automation-image
         input_mapping:
-            config: configuration
+            config: platform-repo
         file: platform-automation-tasks/tasks/download-product.yml
 
 resource_types:
@@ -40,54 +40,62 @@ resources:
     source:
         <<: *s3-common
         bucket: pivnet-downloads
-        regexp: ops-manager-aws-(.*)-build\.(.*)\.yml
+        regexp: \[ops-manager,(.*)\]ops-manager-aws-.*
 -   name: opsman-product-azure
     type: s3
     source:
         <<: *s3-common
         bucket: pivnet-downloads
-        regexp: ops-manager-azure-(.*)-build\.(.*)\.yml
+        regexp: \[ops-manager,(.*)\]ops-manager-azure-.*
+
 -   name: opsman-product-vsphere
     type: s3
     source:
         <<: *s3-common
         bucket: pivnet-downloads
-        regexp: \[ops-manager,(.*)\]ops-manager-vsphere-(.*)-build\.(.*)\.ova
+        regexp: \[ops-manager,(.*)\]ops-manager-vsphere-.*
 
 -   name: pks-product
     type: s3
     source:
         <<: *s3-common
         bucket: pivnet-downloads
-        regexp: \[pivotal-container-service,(.*)\]pivotal-container-service-(.*).pivotal
+        regexp: \[pivotal-container-service,(.*)\]pivotal-container-service-.*\.pivotal
 
 -   name: pks-cli-linux
     type: s3
     source:
         <<: *s3-common
         bucket: software
-        regexp: \[pivotal-container-service,(.*)\]pks-linux-amd64-(.*)-build.(.*)
+        regexp: \[pivotal-container-service,(.*)\]pks-linux-amd64-.*
 
 -   name: pas-product-srt
     type: s3
     source:
         <<: *s3-common
         bucket: pivnet-downloads
-        regexp: srt-(.*).pivotal
+        regexp: \[elastic-runtime,(.*)\]srt-.*\.pivotal
 
 -   name: pas-product
     type: s3
     source:
         <<: *s3-common
         bucket: pivnet-downloads
-        regexp: cf-(.*).pivotal
+        regexp: \[elastic-runtime,(.*)\]cf-.*\.pivotal
+        
+-   name: harbor-product
+    type: s3
+    source:
+        <<: *s3-common
+        bucket: pivnet-downloads
+        regexp: \[harbor-container-registry,(.*)\]harbor-container-registry-.*\.pivotal
 
 -   name: ncp-tile
     type: s3
     source:
         <<: *s3-common
         bucket: pivnet-downloads
-        regexp: VMware-NSX-T-(.*).pivotal
+        regexp: \[vmware-nsx-t,(.*)\]VMware-NSX-T-.*\.pivotal
 
 -   name: pks-stemcell-aws
     type: s3
@@ -127,6 +135,13 @@ resources:
         bucket: pivnet-downloads
         regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-vsphere-esxi-ubuntu-xenial-go_agent.tgz
 
+-   name: harbor-stemcell-vsphere
+    type: s3
+    source:
+        <<: *s3-common
+        bucket: pivnet-downloads
+        regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-vsphere-esxi-ubuntu-xenial-go_agent.tgz
+
 -   name: platform-automation-pivnet
     type: pivnet
     source:
@@ -150,7 +165,7 @@ resources:
         regexp: platform-automation-image-(.*).tgz
 
 
--   name: configuration
+-   name: platform-repo
     type: git
     source:
         private_key: ((git_private_key.private_key))
@@ -193,7 +208,6 @@ resources:
         globs:
         - s5cmd_*_Linux-64bit.tar.gz
 
-
 -   name: uaa-cli
     type: s3
     source:
@@ -229,13 +243,27 @@ resources:
         bucket: software
         regexp: s5cmd_(.*)_Linux-64bit.tar.gz
 
--   name: terraform-12
+-   name: terraform
     type: s3
     source:
       <<: *s3-common
       bucket: ((buckets.software))
-      regexp: terraform-0.12.(.*)
+      regexp: terraform-0.(.*)
 
+-   name: vcenter-iso
+    type: s3
+    source:
+      <<: *s3-common
+      bucket: ((buckets.vmware_products))
+      regexp: VMware-VCSA-all-(.*).iso
+
+-   name: nsxt-ova
+    type: s3
+    source:
+      <<: *s3-common
+      bucket: ((buckets.vmware_products))
+      regexp: nsx-unified-appliance-(.*).ova
+      
 jobs:
 -   name: fetch-platform-automation
     plan:
@@ -258,7 +286,7 @@ jobs:
         -   get: platform-automation-tasks
             params:
                 unpack: true
-        -   get: configuration
+        -   get: platform-repo
     -   task: prepare-tasks-with-secrets
         <<: *prepare-tasks-with-secrets
 
@@ -304,9 +332,18 @@ jobs:
             -   get: platform-automation-tasks
                 params:
                     unpack: true
-            -   get: configuration
+            -   get: platform-repo
     -   task: prepare-tasks-with-secrets
         <<: *prepare-tasks-with-secrets
+
+    -   task: download-pks-cli
+        <<: *download-product-common
+        params:
+            CONFIG_FILE: download-config/pks-cli-linux.yml
+            VARS_FILES: config/vars/download-vars/download-vars.yml
+    -   put: pks-cli-linux
+        params:
+            file: downloaded-product/*pks-linux-amd64-*
 
     -   task: download-pks-product-and-aws-stemcell
         <<: *download-product-common
@@ -342,6 +379,36 @@ jobs:
         params:
             file: pks-stemcell/*.tgz
 
+-   name: fetch-harbor
+    plan:
+    -   in_parallel:
+            -   get: platform-automation-image
+                params:
+                    unpack: true
+            -   get: platform-automation-tasks
+                params:
+                    unpack: true
+            -   get: platform-repo
+    -   task: prepare-tasks-with-secrets
+        <<: *prepare-tasks-with-secrets
+
+    -   task: download-harbor-product-and-vsphere-stemcell
+        <<: *download-product-common
+        params:
+            CONFIG_FILE: download-config/harbor.yml
+            VARS_FILES: |
+                config/vars/download-vars/download-vars.yml 
+                config/vars/vsphere/install-harbor-vars.yml
+        output_mapping: {downloaded-stemcell: harbor-stemcell}
+    -   in_parallel:
+            -   put: harbor-product
+                params:
+                    file: downloaded-product/*.pivotal
+            -   put: harbor-stemcell-vsphere
+                params:
+                    file: harbor-stemcell/*.tgz
+
+
 -   name: fetch-pas
     plan:
     -   in_parallel:
@@ -351,7 +418,7 @@ jobs:
             -   get: platform-automation-tasks
                 params:
                     unpack: true
-            -   get: configuration
+            -   get: platform-repo
     -   task: prepare-tasks-with-secrets
         <<: *prepare-tasks-with-secrets
 
@@ -411,19 +478,42 @@ jobs:
                 params:
                     file: downloaded-product/*.pivotal
 
+-   name: fetch-vsphere
+    plan:
+    -   in_parallel:
+            -   get: platform-repo
+
+    -   task: download-vcenter-iso
+        file: platform-repo/tasks/download-vmware-product/task.yml        
+        params:
+            VMWUSER: ((vmware_download.username))
+            VMWPASS: ((vmware_download.password))
+            PRODUCT_DIRECTORY: vmware_vsan
+            FILE_REGEX: VMware-VCSA-all-.*\.iso
+    -   put: vcenter-iso
+        params:
+            file: downloaded-product/VMware-VCSA-all-*.iso
+
+-   name: fetch-nsxt
+    plan:
+    -   in_parallel:
+            -   get: platform-repo
+
+    -   task: download-nsxt-ova
+        file: platform-repo/tasks/download-vmware-product/task.yml        
+        params:
+            VMWUSER: ((vmware_download.username))
+            VMWPASS: ((vmware_download.password))
+            PRODUCT_DIRECTORY: vmware_nsx_t_data_center
+            FILE_REGEX: nsx-unified-appliance-.*\.ova
+    -   put: nsxt-ova
+        params:
+            file: downloaded-product/nsx-unified-appliance-*.ova
+
 # Fetch JQ first to allow 
 -   name: fetch-jq
     plan:
-    -   in_parallel:
-            -   get: platform-automation-image
-                params:
-                    unpack: true
-            -   get: platform-automation-tasks
-                params:
-                    unpack: true
-            -   get: jq-cli-github-release
-            -   get: configuration
-
+    -   get: jq-cli-github-release
     -   put: jq-cli
         params:
             file: jq-cli-github-release/jq-linux6*
@@ -431,35 +521,15 @@ jobs:
 -   name: fetch-base-tools
     plan:
     -   in_parallel:
-            -   get: platform-automation-image
-                params:
-                    unpack: true
-            -   get: platform-automation-tasks
-                params:
-                    unpack: true
             -   get: uaa-cli-github-release
             -   get: oq-cli-github-release
             -   get: s5cmd-github-release
-            -   get: configuration
+            -   get: platform-repo
             -   get: jq-cli
                 passed: ["fetch-jq"]
                 trigger: true
-    -   task: prepare-tasks-with-secrets
-        <<: *prepare-tasks-with-secrets                    
-
-    -   task: download-pks-cli
-        <<: *download-product-common
-        params:
-            CONFIG_FILE: download-config/pks-cli-linux.yml
-            VARS_FILES: config/vars/download-vars/download-vars.yml
-    -   put: pks-cli-linux
-        params:
-            file: downloaded-product/*pks-linux-amd64-*
-
     -   task: download-mc-cli
-        file: configuration/tasks/download-with-wget/task.yml        
-        input_mapping:
-            config: configuration
+        file: platform-repo/tasks/download-with-wget/task.yml        
         params:
             OUTPUT_FILE_NAME: mc
             DOWNLOAD_LINK: https://dl.min.io/client/mc/release/linux-amd64/mc
@@ -469,11 +539,8 @@ jobs:
             file: downloaded-product/mc-*
  
     -   task: download-terraform-cli
-        file: configuration/tasks/download-terraform/task.yml        
-
-        input_mapping:
-            config: configuration
-    -   put: terraform-12
+        file: platform-repo/tasks/download-terraform/task.yml        
+    -   put: terraform
         params:
             file: downloaded-product/terraform-*
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo
+set -euo pipefail
 
 if [ $# -eq 0 ]; then
     echo "You must add the foundation name"

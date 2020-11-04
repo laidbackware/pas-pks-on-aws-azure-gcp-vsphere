@@ -1,12 +1,15 @@
 ---
 # stemcell-iaas: vmware
 
+harbor_stemcell_version: "621.84"
+harbor_product_version_regex: ^2\..*\..*$
+
 ## Required unless `s3-auth-method` is `iam`
 s3_access_key_id: minio
 s3_disable_ssl: true
 s3_use_v2_signing: true
 s3_region_name: None
-s3_endpoint: 192.168.0.3:9080
+s3_endpoint: http://192.168.16.3:9080
 buckets:
   pivnet_products: pivnet-downloads
   installation: installation

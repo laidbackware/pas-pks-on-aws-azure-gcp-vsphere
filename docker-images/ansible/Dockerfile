@@ -1,35 +1,27 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
-ENV ANSIBLE_VERSION=2.8.6
-ENV OVFTOOL_FILE="VMware-ovftool-4.3.0-13981069-lin.x86_64.bundle"
-
-COPY $OVFTOOL_FILE /tmp/
+ENV ANSIBLE_VERSION=2.10.*
 
 RUN set -xe \
     && echo "****** Install system dependencies ******" \
     && apt update \
     && apt install -y --no-install-recommends \
-       locales curl \
-       software-properties-common libssl-dev libffi-dev \
-       wget rsyslog systemd systemd-cron sudo iproute2 \
-       xorriso ca-certificates iputils-ping unzip \
-    && rm -Rf /var/lib/apt/lists/* \
-    && rm -Rf /usr/share/doc && rm -Rf /usr/share/man \
-    && apt-get clean
-
-RUN set -xe \
-    && echo "****** Install Python bits ******" \
-    && apt update \
+         python3 xorriso ca-certificates iputils-ping python3-apt \
+    \
+    && echo "****** Install Python dependencies ******" \
     && apt install -y --no-install-recommends \
-       locales curl \
-       python3-setuptools build-essential libssl-dev libffi-dev \
-       python3-pip python3-dev \
-    && pip3 install ansible pyvmomi\
-    && apt remove -y build-essential python3-setuptools python3-pip python3-dev python3-distutils \
+       python3-setuptools build-essential   \
+       python3-pip python3-dev git  \
+    \
+    && echo "****** Installing Python modules ******" \
+    && pip3 install ansible pyvmomi  git+https://github.com/vmware/vsphere-automation-sdk-python.git \
+    \
+    && echo "****** Removing build tools ******" \
+    && apt remove -y build-essential python3-pip python3-dev git \
     && apt autoremove -y \
     && rm -Rf /var/lib/apt/lists/* \
     && rm -Rf /usr/share/doc && rm -Rf /usr/share/man \
-    && apt-get clean
-
-RUN /bin/sh /tmp/$OVFTOOL_FILE --console --required --eulas-agreed \
-    && rm -f $OVFTOOL_FILENAME
+    && rm -rf /root/.cache/pip/ \
+    && apt-get clean \
+    && echo "***** Updating vmware_dvswitch.py to enable creation of vds 7.0 ****" \
+    && sed -i "s/'6.6.0']/'6.6.0', '7.0.0']/g" /usr/local/lib/python3.*/dist-packages/ansible_collections/community/vmware/plugins/modules/vmware_dvswitch.py

@@ -21,7 +21,7 @@ ip_pools:
 -   display_name: tep-pool # This is a non-routable range which is used for the overlay tunnels.
     subnets:
     -   allocation_ranges:
-        -   start: "172.16.1.2"
+        -   start: "172.16.1.1"
             end: "172.16.1.254"
         cidr: "172.16.1.0/24"
 
@@ -34,23 +34,8 @@ edges:
     # vSphere config
     network_management_name: "net1"
     network_tep_name: "tep_pg"
-    datastore_name: "datastore1"
+    datastore_name: "datastore-esx1"
     cluster_name: "compute"
-
-logical_routers:
--   router_display_name: t0-router
-    edge_cluster_name: edge-cluster-1
-    router_type: TIER0
-    high_availability_mode: ACTIVE_STANDBY
-    # Uplink section
-    transport_zone_name: "tz-vlan"
-    vlan: 0
-    ip_addresses: "192.168.0.195"
-    prefix_length: "24"
-    # Static route section
-    next_hop_ip_address: "192.168.0.1"
-    network: "0.0.0.0/0"
-    administrative_distance: "2" 
 
 ### No need to edit below this marker ###
 
@@ -59,24 +44,31 @@ certificates:
     pks_super_user: "((nsx_super_user))"
 
 transportzones:
--   display_name: "tz-overlay"
-    transport_type: "OVERLAY"
-    host_switch_name: "sw_over"
-    description: "Overlay Transport Zone"
--   display_name: "tz-vlan"
-    transport_type: "VLAN"
-    host_switch_name: "sw_vlan"
-    description: "Uplink Transport Zone"
+    -   display_name: "tz-overlay"
+        transport_type: "OVERLAY"
+        host_switch_name: "vds_overlay"
+        description: "Overlay Transport Zone"
+    -   display_name: "tz-vlan"
+        transport_type: "VLAN"
+        host_switch_name: "sw_vlan"
+        description: "Uplink Transport Zone"
 
 uplink_profiles:
--   display_name: tep-profile
+-   display_name: host-tep-profile
+    teaming:
+        active_list:
+        -   uplink_name: "uplink-1"
+            uplink_type: PNIC
+        policy: FAILOVER_ORDER
+    transport_vlan: 0    
+-   display_name: edge-tep-profile
     mtu: 1600
     teaming:
         active_list:
         -   uplink_name: "uplink-1"
             uplink_type: PNIC
         policy: FAILOVER_ORDER
-    transport_vlan: 0
+    transport_vlan: 0    
 -   display_name: uplink-profile
     mtu: 1500
     teaming:
@@ -94,18 +86,20 @@ transport_node_profiles:
 -   display_name: tnp1
     host_switches:
     -   host_switch_profiles:
-        -   name: tep-profile
+        -   name: host-tep-profile
             type: UplinkHostSwitchProfile
-        host_switch_name: sw_over
-        pnics:
-        -   device_name: vmnic2
-            uplink_name: "uplink-1"
+        host_switch_name: vds_overlay
+        host_switch_type: VDS
+        host_switch_mode: STANDARD
         ip_assignment_spec:
             resource_type: StaticIpPoolSpec
             ip_pool_name: "tep-pool"
+        transport_zone_endpoints:
+            -   transport_zone_name: "tz-overlay"
+        uplinks:
+            -   uplink_name: "uplink-1"
+                vds_uplink_name: "Uplink 1"
     description: "Cluster node profile"
-    transport_zone_endpoints:
-    -   transport_zone_name: "tz-overlay"
 
 cluster_attach:
 -   display_name: "tnc1"
@@ -113,3 +107,19 @@ cluster_attach:
     compute_manager_name: "vCenter"
     cluster_name: "compute"
     transport_node_profile_name: "tnp1"
+
+
+# logical_routers:
+# -   router_display_name: t0-router
+#     edge_cluster_name: edge-cluster-1
+#     router_type: TIER0
+#     high_availability_mode: ACTIVE_STANDBY
+#     # Uplink section
+#     transport_zone_name: "tz-vlan"
+#     vlan: 0
+#     ip_addresses: "192.168.0.195"
+#     prefix_length: "24"
+#     # Static route section
+#     next_hop_ip_address: "192.168.0.1"
+#     network: "0.0.0.0/0"
+#     administrative_distance: "2" 
