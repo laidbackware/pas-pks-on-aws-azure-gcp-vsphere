@@ -125,9 +125,6 @@ product-properties:
       primary: true
   .properties.diego_database_max_open_connections:
     value: 100
-  .properties.diego_log_timestamp_format:
-    selected_option: rfc3339
-    value: rfc3339
   .properties.enable_garden_containerd_mode:
     value: true
   .properties.enable_log_cache_syslog_ingestion:
