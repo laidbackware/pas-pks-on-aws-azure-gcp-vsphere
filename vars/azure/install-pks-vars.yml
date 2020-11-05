@@ -1,5 +1,5 @@
 product: pks
 foundation: azure
-iaas_stemcell: azure
+iaas_type: azure
 ntp_servers_string: 0.uk.pool.ntp.org
 product_version_regex: ^1\.8\..*$

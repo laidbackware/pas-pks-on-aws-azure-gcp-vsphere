@@ -3,7 +3,6 @@ pivnet-api-token: ((pivnet_token))
 pivnet-file-glob: "pks-linux-amd64-*"
 pivnet-product-slug: pivotal-container-service
 product-version-regex: ^1\.*
-stemcell-iaas: vsphere
 
 s3-access-key-id: ((s3_access_key_id))
 s3-secret-access-key: ((s3_secret_access_key))

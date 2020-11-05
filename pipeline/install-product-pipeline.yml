@@ -167,12 +167,12 @@ resources:
 #       <<: *s3-common
 #       bucket: ((buckets.software))
 #       regexp: terraform-0.11.(.*)
--   name: terraform-12
+-   name: terraform
     type: s3
     source:
       <<: *s3-common
       bucket: ((buckets.software))
-      regexp: terraform-0.12.(.*)
+      regexp: terraform-0.13.(.*)
 # -   name: yq
 #     type: s3
 #     source:
@@ -221,7 +221,7 @@ jobs:
                 unpack: true
         -   get: platform-repo
         # -   get: paving-repo
-        -   get: terraform-12
+        -   get: terraform
         # -   get: oq
         # -   get: jq
     # -   task: prepare-tasks-with-secrets
@@ -234,14 +234,13 @@ jobs:
             STATE_BUCKET_KEY_ID: ((s3_access_key_id))
             STATE_BUCKET: ((buckets.terraform_state))
             FOUNDATION: ((foundation))
-            IAAS_TYPE: ((iaas_stemcell))
+            IAAS_TYPE: ((iaas_type))
             PRODUCT: ((product)) # PKS or PAS
             S3_ENDPOINT: "((s3_endpoint))"
             CLOUD_CREDS: ((cloud_creds)) 
             TF_VAR_hosted_zone: "((domain))."
         input_mapping:
             config: platform-repo
-            terraform: terraform-12
         file: platform-repo/tasks/paving-terraform/task.yml
         ensure:
           put: tf-output-yaml
@@ -255,14 +254,13 @@ jobs:
             STATE_BUCKET_KEY_ID: ((s3_access_key_id))
             STATE_BUCKET: ((buckets.terraform_state))
             FOUNDATION: ((foundation))
-            IAAS_TYPE: ((iaas_stemcell))
+            IAAS_TYPE: ((iaas_type))
             PRODUCT: ((product))
             S3_ENDPOINT: "((s3_endpoint))"
             TF_VAR_aws_access_key: ((aws_client.username))
             TF_VAR_aws_secret_key: ((aws_client.password))
         input_mapping:
             config: platform-repo
-            terraform: terraform-12
         file: platform-repo/tasks/terraform-aws-dns/task.yml
 
 -   name: install-opsman
@@ -613,8 +611,8 @@ jobs:
                 unpack: true
             passed: [ upload-and-stage-((product)) ]
         -   get: platform-repo
-            passed: [ upload-and-stage-((product))  ]
-            trigger: true
+            # passed: [ upload-and-stage-((product))  ]
+            # # trigger: true
         -   get: tf-output-yaml
             passed: [ upload-and-stage-((product))  ]
         # -   get: yq
@@ -764,7 +762,7 @@ jobs:
         -   get: platform-repo
         -   get: paving-repo
         -   get: state
-        -   get: terraform-12
+        -   get: terraform
         -   get: tf-output-yaml
         -   get: oq
         -   get: jq
@@ -779,7 +777,7 @@ jobs:
         file: platform-repo/tasks/wrapper-delete-installation/task.yml
         params:
             ENV_FILE: vars/((foundation))/env/env.yml
-            IAAS_TYPE: ((iaas_stemcell))
+            IAAS_TYPE: ((iaas_type))
             FOUNDATION: ((foundation))
             OM_VAR_domain: ((domain))
             OM_VAR_om_login: ((om_login))
@@ -799,7 +797,7 @@ jobs:
                 config/vars/((foundation))/install-((product))-vars.yml 
                 config/vars/((foundation))/tf-output.yml
             OM_VAR_domain: ((domain))
-            IAAS_TYPE: ((iaas_stemcell))
+            IAAS_TYPE: ((iaas_type))
             OM_VAR_om_login: ((om_login))
             OM_VAR_cloud_creds: ((cloud_creds))
         input_mapping:
@@ -818,10 +816,9 @@ jobs:
                 PRODUCT: ((product))
                 DOMAIN: ((domain))
                 S3_ENDPOINT: "((s3_endpoint))"
-                IAAS_TYPE: ((iaas_stemcell))
+                IAAS_TYPE: ((iaas_type))
             input_mapping:
                 config: platform-repo
-                terraform: terraform-12
             file: platform-repo/tasks/wipe-terraform-aws-dns/task.yml
 
     -   task: wipe-paving-terraform
@@ -836,10 +833,9 @@ jobs:
             CLOUD_CREDS: ((cloud_creds)) 
             TF_VAR_hosted_zone: "((domain))."
             DOMAIN: ((domain))
-            IAAS_TYPE: ((iaas_stemcell))
+            IAAS_TYPE: ((iaas_type))
         input_mapping:
             config: platform-repo
-            terraform: terraform-12
         file: platform-repo/tasks/wipe-paving-terraform/task.yml
 
 
@@ -847,7 +843,7 @@ jobs:
         image: platform-automation-image
         params:
             CLOUD_CREDS: ((cloud_creds)) 
-            IAAS_TYPE: ((iaas_stemcell))
+            IAAS_TYPE: ((iaas_type))
             AWS_ACCESS_KEY_ID: ((s3_access_key_id))
             AWS_SECRET_ACCESS_KEY: ((s3_secret_access_key))
             S3_ENDPOINT: "((s3_endpoint))"
