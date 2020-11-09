@@ -19,7 +19,7 @@ if [ ${IAAS_TYPE} = "vsphere" ]; then
     export TF_VAR_nsxt_edge_cluster_name="$(bosh int ${NSX_VAR_FILE} --path /edge_cluster_name)"
     cd ${ROOT_DIR}/config/terraform/nsxt
 else # Setup for all cloud providers
-    cd ${ROOT_DIR}/config/terraform/nsxt
+    cd ${ROOT_DIR}/config/terraform/${FOUNDATION}
     export TF_VAR_access_key="$(bosh int <(echo ${CLOUD_CREDS}) --path /client_id)"
     export TF_VAR_secret_key="$(bosh int <(echo ${CLOUD_CREDS}) --path  /client_secret)"
 fi

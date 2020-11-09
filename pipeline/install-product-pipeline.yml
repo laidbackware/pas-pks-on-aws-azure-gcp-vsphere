@@ -11,7 +11,7 @@ anchors:
         params:
             CONFIG_PATHS: |
                 config/download-config 
-                config/install-config/((foundation)) 
+                config/install-config/((iaas_type)) 
                 config/vars/((foundation))/env
             VARS_PATHS: |
                 config/vars/((foundation)) 
@@ -167,12 +167,12 @@ resources:
 #       <<: *s3-common
 #       bucket: ((buckets.software))
 #       regexp: terraform-0.11.(.*)
--   name: terraform-12
+-   name: terraform
     type: s3
     source:
       <<: *s3-common
       bucket: ((buckets.software))
-      regexp: terraform-0.12.(.*)
+      regexp: terraform-0.13.(.*)
 # -   name: yq
 #     type: s3
 #     source:
@@ -221,7 +221,7 @@ jobs:
                 unpack: true
         -   get: platform-repo
         # -   get: paving-repo
-        -   get: terraform-12
+        -   get: terraform
         # -   get: oq
         # -   get: jq
     # -   task: prepare-tasks-with-secrets
@@ -234,14 +234,13 @@ jobs:
             STATE_BUCKET_KEY_ID: ((s3_access_key_id))
             STATE_BUCKET: ((buckets.terraform_state))
             FOUNDATION: ((foundation))
-            IAAS_TYPE: ((iaas_stemcell))
+            IAAS_TYPE: ((iaas_type))
             PRODUCT: ((product)) # PKS or PAS
             S3_ENDPOINT: "((s3_endpoint))"
             CLOUD_CREDS: ((cloud_creds)) 
             TF_VAR_hosted_zone: "((domain))."
         input_mapping:
             config: platform-repo
-            terraform: terraform-12
         file: platform-repo/tasks/paving-terraform/task.yml
         ensure:
           put: tf-output-yaml
@@ -255,14 +254,13 @@ jobs:
             STATE_BUCKET_KEY_ID: ((s3_access_key_id))
             STATE_BUCKET: ((buckets.terraform_state))
             FOUNDATION: ((foundation))
-            IAAS_TYPE: ((iaas_stemcell))
+            IAAS_TYPE: ((iaas_type))
             PRODUCT: ((product))
             S3_ENDPOINT: "((s3_endpoint))"
             TF_VAR_aws_access_key: ((aws_client.username))
             TF_VAR_aws_secret_key: ((aws_client.password))
         input_mapping:
             config: platform-repo
-            terraform: terraform-12
         file: platform-repo/tasks/terraform-aws-dns/task.yml
 
 -   name: install-opsman
@@ -313,12 +311,11 @@ jobs:
             config: platform-repo
         params:
             STATE_FILE: om-state-$timestamp.yml
-            OPSMAN_CONFIG_FILE: install-config/((foundation))/opsman.yml
+            OPSMAN_CONFIG_FILE: install-config/((iaas_type))/opsman.yml
             VARS_FILES: |
                 config/vars/((foundation))/common-vars.yml
                 config/vars/((foundation))/install-((product))-vars.yml 
                 config/vars/((foundation))/tf-output.yml
-            OM_VAR_aws_domain: ((domain))
         ensure: &put-state
             do:
             -   put: state
@@ -331,7 +328,7 @@ jobs:
         attempts: 20
         params:
           ENV_FILE: vars/((foundation))/env/env.yml
-          AUTH_CONFIG_FILE: install-config/((foundation))/auth.yml
+          AUTH_CONFIG_FILE: install-config/((iaas_type))/auth.yml
         input_mapping:
           env: platform-repo
           config: platform-repo
@@ -341,7 +338,7 @@ jobs:
         file: platform-automation-tasks/tasks/configure-director.yml
         params:
             ENV_FILE: vars/((foundation))/env/env.yml
-            DIRECTOR_CONFIG_FILE: install-config/((foundation))/director.yml
+            DIRECTOR_CONFIG_FILE: install-config/((iaas_type))/director.yml
             VARS_FILES: |
                 config/vars/((foundation))/common-vars.yml
                 config/vars/((foundation))/install-((product))-vars.yml
@@ -503,12 +500,11 @@ jobs:
             ENV_FILE: vars/((foundation))/env/env.yml
             INSTALLATION_FILE: ((foundation))-installation-*.zip
             STATE_FILE: om-state-$timestamp.yml
-            OPSMAN_CONFIG_FILE: install-config/((foundation))/opsman.yml
+            OPSMAN_CONFIG_FILE: install-config/((iaas_type))/opsman.yml
             VARS_FILES: |
                 config/vars/((foundation))/common-vars.yml
                 config/vars/((foundation))/install-((product))-vars.yml 
                 config/vars/((foundation))/tf-output.yml
-            OM_VAR_aws_domain: ((domain))
         ensure: *put-state
     -   task: configure-director
         image: platform-automation-image
@@ -519,7 +515,7 @@ jobs:
             vars: platform-repo
         params:
             ENV_FILE: vars/((foundation))/env/env.yml
-            DIRECTOR_CONFIG_FILE: install-config/((foundation))/director.yml
+            DIRECTOR_CONFIG_FILE: install-config/((iaas_type))/director.yml
             VARS_FILES: |
                 config/vars/((foundation))/common-vars.yml
                 config/vars/((foundation))/install-((product))-vars.yml
@@ -613,8 +609,8 @@ jobs:
                 unpack: true
             passed: [ upload-and-stage-((product)) ]
         -   get: platform-repo
-            passed: [ upload-and-stage-((product))  ]
-            trigger: true
+            # passed: [ upload-and-stage-((product))  ]
+            # # trigger: true
         -   get: tf-output-yaml
             passed: [ upload-and-stage-((product))  ]
         # -   get: yq
@@ -675,7 +671,7 @@ jobs:
                     lookup_object tier_0_name LogicalRouter
                     lookup_object transport_zone_name TransportZone
 
-                    sed '/_id/d' platform-repo/vars/${FOUNDATION}/tf-output.yml
+                    sed -i '/_id/d' platform-repo/vars/${FOUNDATION}/tf-output.yml
 
                     echo -e "$NEW_OBJECTS"
 
@@ -688,7 +684,7 @@ jobs:
             config: platform-repo
             env: platform-repo
         params:
-            CONFIG_FILE: install-config/((foundation))/((product)).yml
+            CONFIG_FILE: install-config/((iaas_type))/((product)).yml
             VARS_FILES: |
                 config/vars/((foundation))/common-vars.yml
                 config/vars/((foundation))/install-((product))-vars.yml 
@@ -764,7 +760,7 @@ jobs:
         -   get: platform-repo
         -   get: paving-repo
         -   get: state
-        -   get: terraform-12
+        -   get: terraform
         -   get: tf-output-yaml
         -   get: oq
         -   get: jq
@@ -779,9 +775,8 @@ jobs:
         file: platform-repo/tasks/wrapper-delete-installation/task.yml
         params:
             ENV_FILE: vars/((foundation))/env/env.yml
-            IAAS_TYPE: ((iaas_stemcell))
+            IAAS_TYPE: ((iaas_type))
             FOUNDATION: ((foundation))
-            OM_VAR_domain: ((domain))
             OM_VAR_om_login: ((om_login))
         input_mapping:
             env: platform-repo
@@ -793,13 +788,12 @@ jobs:
         params:
             ENV_FILE: vars/((foundation))/env/env.yml
             STATE_FILE: om-state-$timestamp.yml
-            OPSMAN_CONFIG_FILE: install-config/((foundation))/opsman.yml
+            OPSMAN_CONFIG_FILE: install-config/((iaas_type))/opsman.yml
             VARS_FILES: |
                 config/vars/((foundation))/common-vars.yml
                 config/vars/((foundation))/install-((product))-vars.yml 
                 config/vars/((foundation))/tf-output.yml
-            OM_VAR_domain: ((domain))
-            IAAS_TYPE: ((iaas_stemcell))
+            IAAS_TYPE: ((iaas_type))
             OM_VAR_om_login: ((om_login))
             OM_VAR_cloud_creds: ((cloud_creds))
         input_mapping:
@@ -818,10 +812,9 @@ jobs:
                 PRODUCT: ((product))
                 DOMAIN: ((domain))
                 S3_ENDPOINT: "((s3_endpoint))"
-                IAAS_TYPE: ((iaas_stemcell))
+                IAAS_TYPE: ((iaas_type))
             input_mapping:
                 config: platform-repo
-                terraform: terraform-12
             file: platform-repo/tasks/wipe-terraform-aws-dns/task.yml
 
     -   task: wipe-paving-terraform
@@ -836,10 +829,9 @@ jobs:
             CLOUD_CREDS: ((cloud_creds)) 
             TF_VAR_hosted_zone: "((domain))."
             DOMAIN: ((domain))
-            IAAS_TYPE: ((iaas_stemcell))
+            IAAS_TYPE: ((iaas_type))
         input_mapping:
             config: platform-repo
-            terraform: terraform-12
         file: platform-repo/tasks/wipe-paving-terraform/task.yml
 
 
@@ -847,7 +839,7 @@ jobs:
         image: platform-automation-image
         params:
             CLOUD_CREDS: ((cloud_creds)) 
-            IAAS_TYPE: ((iaas_stemcell))
+            IAAS_TYPE: ((iaas_type))
             AWS_ACCESS_KEY_ID: ((s3_access_key_id))
             AWS_SECRET_ACCESS_KEY: ((s3_secret_access_key))
             S3_ENDPOINT: "((s3_endpoint))"

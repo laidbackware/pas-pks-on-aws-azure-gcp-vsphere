@@ -3,7 +3,7 @@ pivnet-api-token: ((pivnet_token))
 pivnet-file-glob: "*cf*.pivotal"
 pivnet-product-slug: elastic-runtime
 product-version-regex: ((product_version_regex))
-stemcell-iaas: ((iaas_stemcell))
+stemcell-iaas: ((iaas_type))
 
 s3-access-key-id: ((s3_access_key_id))
 s3-secret-access-key: ((s3_secret_access_key))

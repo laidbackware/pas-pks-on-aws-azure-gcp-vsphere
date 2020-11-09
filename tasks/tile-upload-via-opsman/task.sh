@@ -8,7 +8,7 @@ if [ ${IAAS_TYPE} = "vsphere" ]; then
     exit 0
 fi
 
-OM_TARGET=$(om interpolate -c config/${ENV_FILE} -s --path /target) || exit 1
+OM_TARGET=$(bosh int config/${ENV_FILE} --path /target | sed s"/((domain))/${OM_VAR_domain}/")
 
 if $(curl -k --output /dev/null --silent --head --fail -m 5 ${OM_TARGET})
 then

@@ -1,6 +1,6 @@
 product: srt
 foundation: vsphere
-iaas_stemcell: vsphere
+iaas_type: vsphere
 # om_version: 2.8
 ntp_servers_string: 0.uk.pool.ntp.org
 product_version_regex: ^2\.[9]\..*$
