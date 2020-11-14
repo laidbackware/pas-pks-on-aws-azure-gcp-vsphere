@@ -216,16 +216,8 @@ jobs:
         -   get: platform-automation-image
             params:
                 unpack: true
-        -   get: platform-automation-tasks
-            params:
-                unpack: true
         -   get: platform-repo
-        # -   get: paving-repo
         -   get: terraform
-        # -   get: oq
-        # -   get: jq
-    # -   task: prepare-tasks-with-secrets
-    #     <<: *prepare-tasks-with-secrets
 
     -   task: paving-terraform
         image: platform-automation-image
@@ -778,6 +770,7 @@ jobs:
             IAAS_TYPE: ((iaas_type))
             FOUNDATION: ((foundation))
             OM_VAR_om_login: ((om_login))
+            OM_VAR_domain: ((domain))
         input_mapping:
             env: platform-repo
             config: platform-repo
@@ -796,6 +789,7 @@ jobs:
             IAAS_TYPE: ((iaas_type))
             OM_VAR_om_login: ((om_login))
             OM_VAR_cloud_creds: ((cloud_creds))
+            OM_VAR_domain: ((domain))
         input_mapping:
             config: platform-repo
             env: platform-repo

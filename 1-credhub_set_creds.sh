@@ -128,10 +128,10 @@ credhub set -n /concourse/${FOUNDATION}/pks_cluster_admin_user -t user -z "$PKS_
 
 # GCP Section
 FOUNDATION=gcp
-GCP_CLIENT_ID=$(lpass show gcp-service-account --notes |jq .client_id)
-GCP_PRODUCT_ID=$(lpass show gcp-service-account --notes |jq .project_id)
-GCP_PRIVATE_KEY_ID=$(lpass show gcp-service-account --notes |jq .private_key_id)
-GCP_PRIVATE_KEY=$(lpass show gcp-service-account --notes |jq .private_key)
+GCP_CLIENT_ID=$(lpass show gcp-service-account --notes |jq .client_id | tr -d '"')
+GCP_PRODUCT_ID=$(lpass show gcp-service-account --notes |jq .project_id | tr -d '"')
+GCP_PRIVATE_KEY_ID=$(lpass show gcp-service-account --notes |jq .private_key_id | tr -d '"')
+GCP_PRIVATE_KEY=$(lpass show gcp-service-account --notes |jq .private_key | tr -d '"')
 CLOUD_CREDS_JSON="{\"client_id\": \"${GCP_CLIENT_ID}\", \"client_secret\": \"${GCP_PRIVATE_KEY}\",
                                             \"gcp_project_id\": \"${GCP_PRODUCT_ID}\", 
                                             \"gcp_private_key_id\": \"${GCP_PRIVATE_KEY_ID}\"}" #TODO tenant sub
@@ -147,8 +147,6 @@ credhub set -n /concourse/${FOUNDATION}/pas_cert -t rsa  -p "${GOROUTER_PRIVATE_
 #PKS Secrets
 credhub set -n /concourse/${FOUNDATION}/pks-api -t rsa -p "${PKS_API_PRIVATE_KEY}" -u "${PKS_API_PUBLIC_KEY}"
 credhub set -n /concourse/${FOUNDATION}/pks_cluster_admin_user -t user -z "$PKS_CLUSTER_ADMIN_USERNAME" -w "$PKS_CLUSTER_ADMIN_PASSWORD"
-
-
 
 # vSphere section
 FOUNDATION=vsphere
