@@ -104,14 +104,14 @@ resources:
     type: s3
     source:
         <<: *s3-common
-        bucket: platform-automation
+        bucket: ((buckets.platform_automation))
         regexp: platform-automation-tasks-(.*).zip
 
 -   name: platform-automation-image
     type: s3
     source:
         <<: *s3-common
-        bucket: platform-automation
+        bucket: ((buckets.platform_automation))
         regexp: platform-automation-image-(.*).tgz
 
 -   name: platform-repo
@@ -190,21 +190,21 @@ resources:
     type: s3
     source:
         <<: *s3-common
-        bucket: software
+        bucket: ((buckets.software))
         regexp: jq-linux(.*)
 
 -   name: s5cmd
     type: s3
     source:
         <<: *s3-common
-        bucket: software
+        bucket: ((buckets.software))
         regexp: s5cmd_(.*)_Linux-64bit.tar.gz
 
 -   name: nsxsearch
     type: s3
     source:
         <<: *s3-common
-        bucket: software
+        bucket: ((buckets.software))
         regexp: nsxsearch-linux-(.*)
 
 jobs:
@@ -265,7 +265,6 @@ jobs:
             params:
                 unpack: true
         -   get: platform-automation-tasks
-            passed: ["pave-infra"]
             params:
                 unpack: true
         -   get: platform-repo

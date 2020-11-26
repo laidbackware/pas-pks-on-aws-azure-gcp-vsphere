@@ -39,27 +39,27 @@ resources:
     type: s3
     source:
         <<: *s3-common
-        bucket: pivnet-downloads
+        bucket: ((buckets.pivnet_products))
         regexp: \[ops-manager,(.*)\]ops-manager-aws-.*
 -   name: opsman-product-azure
     type: s3
     source:
         <<: *s3-common
-        bucket: pivnet-downloads
+        bucket: ((buckets.pivnet_products))
         regexp: \[ops-manager,(.*)\]ops-manager-azure-.*
 
 -   name: opsman-product-vsphere
     type: s3
     source:
         <<: *s3-common
-        bucket: pivnet-downloads
+        bucket: ((buckets.pivnet_products))
         regexp: \[ops-manager,(.*)\]ops-manager-vsphere-.*
 
 -   name: pks-product
     type: s3
     source:
         <<: *s3-common
-        bucket: pivnet-downloads
+        bucket: ((buckets.pivnet_products))
         regexp: \[pivotal-container-service,(.*)\]pivotal-container-service-.*\.pivotal
 
 -   name: pks-cli-linux
@@ -73,73 +73,73 @@ resources:
     type: s3
     source:
         <<: *s3-common
-        bucket: pivnet-downloads
+        bucket: ((buckets.pivnet_products))
         regexp: \[elastic-runtime,(.*)\]srt-.*\.pivotal
 
 -   name: pas-product
     type: s3
     source:
         <<: *s3-common
-        bucket: pivnet-downloads
+        bucket: ((buckets.pivnet_products))
         regexp: \[elastic-runtime,(.*)\]cf-.*\.pivotal
         
 -   name: harbor-product
     type: s3
     source:
         <<: *s3-common
-        bucket: pivnet-downloads
+        bucket: ((buckets.pivnet_products))
         regexp: \[harbor-container-registry,(.*)\]harbor-container-registry-.*\.pivotal
 
 -   name: ncp-tile
     type: s3
     source:
         <<: *s3-common
-        bucket: pivnet-downloads
+        bucket: ((buckets.pivnet_products))
         regexp: \[vmware-nsx-t,(.*)\]VMware-NSX-T-.*\.pivotal
 
 -   name: pks-stemcell-aws
     type: s3
     source:
         <<: *s3-common
-        bucket: pivnet-downloads
+        bucket: ((buckets.pivnet_products))
         regexp: \[stemcells-ubuntu-xenial,(.*)\]light-bosh-stemcell-(.*)-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
 -   name: pks-stemcell-azure
     type: s3
     source:
         <<: *s3-common
-        bucket: pivnet-downloads
+        bucket: ((buckets.pivnet_products))
         regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-azure-hyperv-ubuntu-xenial-go_agent.tgz
 -   name: pks-stemcell-vsphere
     type: s3
     source:
         <<: *s3-common
-        bucket: pivnet-downloads
+        bucket: ((buckets.pivnet_products))
         regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-vsphere-esxi-ubuntu-xenial-go_agent.tgz
 
 -   name: pas-stemcell-aws
     type: s3
     source:
         <<: *s3-common
-        bucket: pivnet-downloads
+        bucket: ((buckets.pivnet_products))
         regexp: \[stemcells-ubuntu-xenial,(.*)\]light-bosh-stemcell-(.*)-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
 -   name: pas-stemcell-azure
     type: s3
     source:
         <<: *s3-common
-        bucket: pivnet-downloads
+        bucket: ((buckets.pivnet_products))
         regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-azure-hyperv-ubuntu-xenial-go_agent.tgz
 -   name: pas-stemcell-vsphere
     type: s3
     source:
         <<: *s3-common
-        bucket: pivnet-downloads
+        bucket: ((buckets.pivnet_products))
         regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-vsphere-esxi-ubuntu-xenial-go_agent.tgz
 
 -   name: harbor-stemcell-vsphere
     type: s3
     source:
         <<: *s3-common
-        bucket: pivnet-downloads
+        bucket: ((buckets.pivnet_products))
         regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-vsphere-esxi-ubuntu-xenial-go_agent.tgz
 
 -   name: platform-automation-pivnet
@@ -154,14 +154,14 @@ resources:
     type: s3
     source:
         <<: *s3-common
-        bucket: platform-automation
+        bucket: ((buckets.platform_automation))
         regexp: platform-automation-tasks-(.*).zip
 
 -   name: platform-automation-image
     type: s3
     source:
         <<: *s3-common
-        bucket: platform-automation
+        bucket: ((buckets.platform_automation))
         regexp: platform-automation-image-(.*).tgz
 
 
@@ -212,35 +212,35 @@ resources:
     type: s3
     source:
         <<: *s3-common
-        bucket: software
+        bucket: ((buckets.software))
         regexp: uaa-linux-amd64-(.*)
 
 -   name: mc-cli
     type: s3
     source:
         <<: *s3-common
-        bucket: software
+        bucket: ((buckets.software))
         regexp: mc-(.*)
         
 -   name: oq-cli
     type: s3
     source:
         <<: *s3-common
-        bucket: software
+        bucket: ((buckets.software))
         regexp: oq-v(.*)-linux-x86_64
 
 -   name: jq-cli
     type: s3
     source:
         <<: *s3-common
-        bucket: software
+        bucket: ((buckets.software))
         regexp: jq-linux(.*)
 
 -   name: s5cmd
     type: s3
     source:
         <<: *s3-common
-        bucket: software
+        bucket: ((buckets.software))
         regexp: s5cmd_(.*)_Linux-64bit.tar.gz
 
 -   name: terraform
@@ -484,7 +484,14 @@ jobs:
             -   get: platform-repo
 
     -   task: download-vcenter-iso
-        file: platform-repo/tasks/download-vmware-product/task.yml        
+        file: platform-repo/tasks/download-vmware-product/task.yml
+        image_resource:
+            type: docker-image
+            source: 
+                repository: apnex/vmw-cli
+                tag: latest        
+                username: ((docker_username))
+                password: ((docker_password))
         params:
             VMWUSER: ((vmware_download.username))
             VMWPASS: ((vmware_download.password))
@@ -501,6 +508,13 @@ jobs:
 
     -   task: download-nsxt-ova
         file: platform-repo/tasks/download-vmware-product/task.yml        
+        image_resource:
+            type: docker-image
+            source: 
+                repository: apnex/vmw-cli
+                tag: latest        
+                username: ((docker_username))
+                password: ((docker_password))
         params:
             VMWUSER: ((vmware_download.username))
             VMWPASS: ((vmware_download.password))
