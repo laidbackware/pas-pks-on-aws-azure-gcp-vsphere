@@ -6,7 +6,7 @@ ROOT_DIR="$(pwd)"
 
 # Setup tools
 cp ${ROOT_DIR}/terraform/terraform-* /usr/local/bin/terraform
-chmod +x /usr/local/bin/terraform 
+chmod +x /usr/local/bin/terraform
 
 if [ ${IAAS_TYPE} = "vsphere" ]; then
     NSX_VAR_FILE=${ROOT_DIR}/config/vars/${FOUNDATION}/nsxt-answerfile.yml

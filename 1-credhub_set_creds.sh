@@ -62,7 +62,7 @@ credhub login --client-name credhub_client --client-secret ${DUCC_CREDHUB_CLIENT
 PIVNET_TOKEN="$(lpass show pivnet_token --password)"
 AWS_ACCESS_KEY="$(lpass show aws-paving-user --username)"
 AWS_SECRET_KEY="$(lpass show aws-paving-user --password)"
-GIT_PRIVATE_KEY="$(lpass show git_private_key --field="Private Key")"
+GIT_PRIVATE_KEY="$(lpass show git_key --field="Private Key")"
 OM_PASSWORD="$(lpass show opsman --password)"
 AZURE_APP_ID="$(lpass show azure-principal --username)"
 AZURE_SECRET="$(lpass show azure-principal --password)"

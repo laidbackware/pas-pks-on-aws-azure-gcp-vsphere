@@ -1,8 +1,7 @@
 # vsphere_version: "{{ lookup('env', 'VSPHERE_VERSION') }}"
-dns1: '192.168.0.110'
-dns2: '192.168.0.1'
-domain: 'home.local'
-ntp: time1.google.com
+dns_server: '192.168.0.110'
+dns_domain: 'home.local'
+ntp_server_ip: time1.google.com
 disk_mode: thin #How all disks should be deployed
 nested_host_password: "{{ lookup('env', 'NESTED_HOST_PASSWORD') }}"
 

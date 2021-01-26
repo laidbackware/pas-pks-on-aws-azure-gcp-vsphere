@@ -144,6 +144,7 @@ resources:
 
 -   name: platform-automation-pivnet
     type: pivnet
+    check_every: 24h
     source:
         api_token: ((pivnet_token))
         product_slug: platform-automation
@@ -485,13 +486,6 @@ jobs:
 
     -   task: download-vcenter-iso
         file: platform-repo/tasks/download-vmware-product/task.yml
-        image_resource:
-            type: docker-image
-            source: 
-                repository: apnex/vmw-cli
-                tag: latest        
-                username: ((docker_username))
-                password: ((docker_password))
         params:
             VMWUSER: ((vmware_download.username))
             VMWPASS: ((vmware_download.password))
@@ -508,13 +502,7 @@ jobs:
 
     -   task: download-nsxt-ova
         file: platform-repo/tasks/download-vmware-product/task.yml        
-        image_resource:
-            type: docker-image
-            source: 
-                repository: apnex/vmw-cli
-                tag: latest        
-                username: ((docker_username))
-                password: ((docker_password))
+        
         params:
             VMWUSER: ((vmware_download.username))
             VMWPASS: ((vmware_download.password))

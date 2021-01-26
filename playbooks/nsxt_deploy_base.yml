@@ -122,7 +122,7 @@
           origin_type: "vCenter"
           credential:
             credential_type: UsernamePasswordLoginCredential
-            username: "{{ nested_vcenter.user }}"
+            username: "{{ nested_vcenter.username }}"
             password: "{{ nested_vcenter.password }}"
           set_as_oidc_provider: true
           state: present
@@ -220,7 +220,7 @@
               placement_type: VsphereDeploymentConfig
               storage: "{{ item.datastore_name }}"
               vc_name: vCenter
-              vc_username: "{{ nested_vcenter.user }}"
+              vc_username: "{{ nested_vcenter.username }}"
               vc_password: "{{ nested_vcenter.password }}"
           deployment_type: VIRTUAL_MACHINE
           display_name: "{{ item.display_name}}"
