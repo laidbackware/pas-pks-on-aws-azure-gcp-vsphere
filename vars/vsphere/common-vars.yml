@@ -1,6 +1,6 @@
 ---
 # om_version: "2.9"
-opsman_regex: ^2\.9\.\d+.*$
+opsman_regex: ^2\.10\.\d+.*$
 opsman_pivnet_glob: "ops-manager-vsphere-*.ova"
 ntp_servers_string: 0.uk.pool.ntp.org
 

@@ -3,5 +3,5 @@ foundation: vsphere
 iaas_type: vsphere
 # om_version: 2.8
 ntp_servers_string: 0.uk.pool.ntp.org
-product_version_regex: ^2\.[9]\..*$
+product_version_regex: ^2\.[10]\..*$
 ncp_version_regex: ^3\.0\..*$
