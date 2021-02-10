@@ -5,8 +5,8 @@ image_resource:
   source: 
       repository: apnex/vmw-cli
       tag: latest        
-      username: ((docker_username))
-      password: ((docker_password))
+      username: ((docker_hub.username))
+      password: ((docker_hub.password))
 inputs:
 - name: platform-repo
 # - name: jq-cli
