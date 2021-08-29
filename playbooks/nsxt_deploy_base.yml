@@ -28,8 +28,8 @@
         vcenter_passwd: "{{ nsx_manager.vcenter_passwd }}"
         deployment_size: "{{ nsx_manager.deployment_size }}"
         role: "NSX Manager"
-        allow_ssh_root_login: True
-        ssh_enabled: True
+        allow_ssh_root_login: true
+        ssh_enabled: true
       register: result_manager
 
     - name: Check manager status

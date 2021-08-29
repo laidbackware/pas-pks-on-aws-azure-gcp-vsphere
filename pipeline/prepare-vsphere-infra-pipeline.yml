@@ -1,107 +1,107 @@
 ---
 anchors:
-    s3-common: &s3-common
-        access_key_id: ((s3_access_key_id))
-        secret_access_key: ((s3_secret_access_key))
-        disable_ssl: ((s3_disable_ssl))
-        use_v2_signing: ((s3_use_v2_signing))
-        region_name: ((s3_region_name))
-        endpoint: ((s3_endpoint))
+  s3-common: &s3-common
+    access_key_id: ((s3_access_key_id))
+    secret_access_key: ((s3_secret_access_key))
+    disable_ssl: ((s3_disable_ssl))
+    use_v2_signing: ((s3_use_v2_signing))
+    region_name: ((s3_region_name))
+    endpoint: ((s3_endpoint))
 
 resources:
-    -   name: configuration
-        type: git
-        source:
-            private_key: ((git_private_key.private_key))
-            uri: git@github.com:laidbackware/aws-pks-pas.git
-            branch: ((branch))
+  - name: configuration
+    type: git
+    source:
+      private_key: ((git_private_key.private_key))
+      uri: git@github.com:laidbackware/aws-pks-pas.git
+      branch: ((branch))
 
-    -   name: vsphere-ansible-repo
-        type: git
-        source:
-            private_key: ((git_private_key.private_key))
-            uri: https://github.com/laidbackware/vsphere-ansible-lab-builder.git
-            branch: main
+  - name: vsphere-ansible-repo
+    type: git
+    source:
+      private_key: ((git_private_key.private_key))
+      uri: https://github.com/laidbackware/vsphere-ansible-lab-builder.git
+      branch: main
 
-    -   name: nsxt-ansible
-        type: git
-        source:
-            private_key: ((git_private_key.private_key))
-            # uri: git@github.com:vmware/ansible-for-nsxt.git
-            # branch: master # Using dev branch as features needed for NSX-T 2.5
-            uri: git@github.com:laidbackware/ansible-for-nsxt.git
-            branch: compute-manager-trust # Using fork to allow compute manager trust.
-        # version:
-        #     ref: 2f72f26291bb11a7fa51da5bf4c97ae63b0de064
-            
-    -   name: esxi-ova
-        type: s3
-        source:
-            <<: *s3-common
-            bucket: ((buckets.vmware_products))
-            regexp: Nested_ESXi((vsphere_version)).(.*)_Appliance_Template_v1.ova
-            
-    -   name: vcenter-iso
-        type: s3
-        source:
-            <<: *s3-common
-            bucket: ((buckets.vmware_products))
-            regexp: VMware-VCSA-all-((vsphere_version)).(.*).iso
+  - name: nsxt-ansible
+    type: git
+    source:
+      private_key: ((git_private_key.private_key))
+      # uri: git@github.com:vmware/ansible-for-nsxt.git
+      # branch: master # Using dev branch as features needed for NSX-T 2.5
+      uri: git@github.com:laidbackware/ansible-for-nsxt.git
+      branch: compute-manager-trust # Using fork to allow compute manager trust.
+    # version:
+    #   ref: 2f72f26291bb11a7fa51da5bf4c97ae63b0de064
+      
+  - name: esxi-ova
+    type: s3
+    source:
+      <<: *s3-common
+      bucket: ((buckets.vmware_products))
+      regexp: Nested_ESXi((vsphere_version)).(.*)_Appliance_Template_v1.ova
+      
+  - name: vcenter-iso
+    type: s3
+    source:
+      <<: *s3-common
+      bucket: ((buckets.vmware_products))
+      regexp: VMware-VCSA-all-((vsphere_version)).(.*).iso
 
-    -   name: nsxt-ova
-        type: s3
-        source:
-            <<: *s3-common
-            bucket: ((buckets.vmware_products))
-            regexp: nsx-unified-appliance-((nsxt_version)).(.*).ova
+  - name: nsxt-ova
+    type: s3
+    source:
+      <<: *s3-common
+      bucket: ((buckets.vmware_products))
+      regexp: nsx-unified-appliance-((nsxt_version)).(.*).ova
 
 jobs:
-    -   name: pave-vsphere
-        serial: true
-        serial_groups: [ install ]
-        plan:
-            -   in_parallel:
-                -   get: configuration
-                -   get: vsphere-ansible-repo
-                -   get: vcenter-iso
-                -   get: esxi-ova
-            -   task: deploy-vsphere
-                params:
-                    VSPHERE_ANSWERS: vars/((foundation))/vsphere-answerfile.yml
-                    FOUNDATION: ((foundation))
-                    NESTED_HOST_PASSWORD: ((nested_host_password))
-                    PARENT_VCENTER_USERNAME: ((parent_vcenter_credentials.username))
-                    PARENT_VCENTER_PASSWORD: ((parent_vcenter_credentials.password))
-                    NESTED_VCENTER_PASSWORD:  ((nested_vcenter_credentials.password))
-                input_mapping:
-                    config: configuration
-                attempts: 3
-                file: configuration/tasks/pave-vsphere-ansible/task.yml
+  - name: pave-vsphere
+    serial: true
+    serial_groups: [ install ]
+    plan:
+      - in_parallel:
+        - get: configuration
+        - get: vsphere-ansible-repo
+        - get: vcenter-iso
+        - get: esxi-ova
+      - task: deploy-vsphere
+        params:
+          VSPHERE_ANSWERS: vars/((foundation))/vsphere-answerfile.yml
+          FOUNDATION: ((foundation))
+          NESTED_HOST_PASSWORD: ((nested_host_password))
+          PARENT_VCENTER_USERNAME: ((parent_vcenter_credentials.username))
+          PARENT_VCENTER_PASSWORD: ((parent_vcenter_credentials.password))
+          NESTED_VCENTER_PASSWORD:  ((nested_vcenter_credentials.password))
+        input_mapping:
+          config: configuration
+        attempts: 3
+        file: configuration/tasks/pave-vsphere-ansible/task.yml
 
-    -   name: pave-nsxt
-        serial: true
-        serial_groups: [ install ]
-        plan:
-            -   in_parallel:
-                -   get: configuration
-                    trigger: true
-                    passed: [ "pave-vsphere" ]
-                -   get: nsxt-ansible
-                -   get: nsxt-ova
-            -   task: deploy-nsxt-ansible
-                params:
-                    FOUNDATION: ((foundation))
-                    NESTED_HOST_PASSWORD: ((nested_host_password))
-                    NSX_PASSWORD: ((cloud_creds.nsx_password))
-                    PARENT_VCENTER_USERNAME: ((parent_vcenter_credentials.username))
-                    PARENT_VCENTER_PASSWORD: ((parent_vcenter_credentials.password))
-                    NESTED_VCENTER_PASSWORD:  ((nested_vcenter_credentials.password))
-                    NSX_API_PUBLIC_KEY: ((nsx_machine_cert.public_key))
-                    NSX_API_PRIVATE_KEY: ((nsx_machine_cert.private_key))
-                    NSXT_LICENSE_KEY: ((nsxt_license_key))
-                    PKS_USER_USER_PUBLIC_KEY: ((pks_nsx_super_user.public_key))
-                    PKS_USER_USER_PRIVATE_KEY: ((pks_nsx_super_user.private_key))
-                input_mapping:
-                    config: configuration
-                attempts: 3
-                file: configuration/tasks/pave-nsxt-ansible/task.yml
+  - name: pave-nsxt
+    serial: true
+    serial_groups: [ install ]
+    plan:
+      - in_parallel:
+        - get: configuration
+          trigger: true
+          passed: [ "pave-vsphere" ]
+        - get: nsxt-ansible
+        - get: nsxt-ova
+      - task: deploy-nsxt-ansible
+        params:
+          FOUNDATION: ((foundation))
+          NESTED_HOST_PASSWORD: ((nested_host_password))
+          NSX_PASSWORD: ((cloud_creds.nsx_password))
+          PARENT_VCENTER_USERNAME: ((parent_vcenter_credentials.username))
+          PARENT_VCENTER_PASSWORD: ((parent_vcenter_credentials.password))
+          NESTED_VCENTER_PASSWORD:  ((nested_vcenter_credentials.password))
+          NSX_API_PUBLIC_KEY: ((nsx_machine_cert.public_key))
+          NSX_API_PRIVATE_KEY: ((nsx_machine_cert.private_key))
+          NSXT_LICENSE_KEY: ((nsxt_license_key))
+          PKS_USER_USER_PUBLIC_KEY: ((pks_nsx_super_user.public_key))
+          PKS_USER_USER_PRIVATE_KEY: ((pks_nsx_super_user.private_key))
+        input_mapping:
+          config: configuration
+        attempts: 3
+        file: configuration/tasks/pave-nsxt-ansible/task.yml

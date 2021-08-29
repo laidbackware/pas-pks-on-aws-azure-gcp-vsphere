@@ -1,559 +1,559 @@
 ---
 anchors:
--   prepare-tasks-with-secrets: &prepare-tasks-with-secrets
-        image: platform-automation-image
-        file: platform-automation-tasks/tasks/prepare-tasks-with-secrets.yml
-        input_mapping:
-            tasks: platform-automation-tasks
-            config: platform-repo
-            vars: platform-repo
-        output_mapping:
-            tasks: platform-automation-tasks
-        params:
-            CONFIG_PATHS: config/download-config
-            VARS_PATHS: config/vars # required only if using vars
+- prepare-tasks-with-secrets: &prepare-tasks-with-secrets
+    image: platform-automation-image
+    file: platform-automation-tasks/tasks/prepare-tasks-with-secrets.yml
+    input_mapping:
+      tasks: platform-automation-tasks
+      config: platform-repo
+      vars: platform-repo
+    output_mapping:
+      tasks: platform-automation-tasks
+    params:
+      CONFIG_PATHS: config/download-config
+      VARS_PATHS: config/vars # required only if using vars
 
--   s3-common: &s3-common
-        access_key_id: ((s3_access_key_id))
-        secret_access_key: ((s3_secret_access_key))
-        disable_ssl: ((s3_disable_ssl))
-        use_v2_signing: ((s3_use_v2_signing))
-        region_name: ((s3_region_name))
-        endpoint: ((s3_endpoint))
+- s3-common: &s3-common
+    access_key_id: ((s3_access_key_id))
+    secret_access_key: ((s3_secret_access_key))
+    disable_ssl: ((s3_disable_ssl))
+    use_v2_signing: ((s3_use_v2_signing))
+    region_name: ((s3_region_name))
+    endpoint: ((s3_endpoint))
 
 - download-product-common: &download-product-common
-        image: platform-automation-image
-        input_mapping:
-            config: platform-repo
-        file: platform-automation-tasks/tasks/download-product.yml
+    image: platform-automation-image
+    input_mapping:
+      config: platform-repo
+    file: platform-automation-tasks/tasks/download-product.yml
 
 resource_types:
--   name: pivnet
-    type: docker-image
-    source:
-        repository: pivotalcf/pivnet-resource
-        tag: latest-final
+- name: pivnet
+  type: docker-image
+  source:
+    repository: pivotalcf/pivnet-resource
+    tag: latest-final
 
 resources:
--   name: opsman-product-aws
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.pivnet_products))
-        regexp: \[ops-manager,(.*)\]ops-manager-aws-.*
--   name: opsman-product-azure
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.pivnet_products))
-        regexp: \[ops-manager,(.*)\]ops-manager-azure-.*
+- name: opsman-product-aws
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.pivnet_products))
+    regexp: \[ops-manager,(.*)\]ops-manager-aws-.*
+- name: opsman-product-azure
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.pivnet_products))
+    regexp: \[ops-manager,(.*)\]ops-manager-azure-.*
 
--   name: opsman-product-vsphere
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.pivnet_products))
-        regexp: \[ops-manager,(.*)\]ops-manager-vsphere-.*
+- name: opsman-product-vsphere
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.pivnet_products))
+    regexp: \[ops-manager,(.*)\]ops-manager-vsphere-.*
 
--   name: pks-product
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.pivnet_products))
-        regexp: \[pivotal-container-service,(.*)\]pivotal-container-service-.*\.pivotal
+- name: pks-product
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.pivnet_products))
+    regexp: \[pivotal-container-service,(.*)\]pivotal-container-service-.*\.pivotal
 
--   name: pks-cli-linux
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: software
-        regexp: \[pivotal-container-service,(.*)\]pks-linux-amd64-.*
+- name: pks-cli-linux
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: software
+    regexp: \[pivotal-container-service,(.*)\]pks-linux-amd64-.*
 
--   name: pas-product-srt
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.pivnet_products))
-        regexp: \[elastic-runtime,(.*)\]srt-.*\.pivotal
+- name: pas-product-srt
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.pivnet_products))
+    regexp: \[elastic-runtime,(.*)\]srt-.*\.pivotal
 
--   name: pas-product
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.pivnet_products))
-        regexp: \[elastic-runtime,(.*)\]cf-.*\.pivotal
-        
--   name: harbor-product
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.pivnet_products))
-        regexp: \[harbor-container-registry,(.*)\]harbor-container-registry-.*\.pivotal
+- name: pas-product
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.pivnet_products))
+    regexp: \[elastic-runtime,(.*)\]cf-.*\.pivotal
+    
+- name: harbor-product
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.pivnet_products))
+    regexp: \[harbor-container-registry,(.*)\]harbor-container-registry-.*\.pivotal
 
--   name: ncp-tile
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.pivnet_products))
-        regexp: \[vmware-nsx-t,(.*)\]VMware-NSX-T-.*\.pivotal
+- name: ncp-tile
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.pivnet_products))
+    regexp: \[vmware-nsx-t,(.*)\]VMware-NSX-T-.*\.pivotal
 
--   name: pks-stemcell-aws
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.pivnet_products))
-        regexp: \[stemcells-ubuntu-xenial,(.*)\]light-bosh-stemcell-(.*)-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
--   name: pks-stemcell-azure
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.pivnet_products))
-        regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-azure-hyperv-ubuntu-xenial-go_agent.tgz
--   name: pks-stemcell-vsphere
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.pivnet_products))
-        regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-vsphere-esxi-ubuntu-xenial-go_agent.tgz
+- name: pks-stemcell-aws
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.pivnet_products))
+    regexp: \[stemcells-ubuntu-xenial,(.*)\]light-bosh-stemcell-(.*)-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
+- name: pks-stemcell-azure
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.pivnet_products))
+    regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-azure-hyperv-ubuntu-xenial-go_agent.tgz
+- name: pks-stemcell-vsphere
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.pivnet_products))
+    regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-vsphere-esxi-ubuntu-xenial-go_agent.tgz
 
--   name: pas-stemcell-aws
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.pivnet_products))
-        regexp: \[stemcells-ubuntu-xenial,(.*)\]light-bosh-stemcell-(.*)-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
--   name: pas-stemcell-azure
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.pivnet_products))
-        regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-azure-hyperv-ubuntu-xenial-go_agent.tgz
--   name: pas-stemcell-vsphere
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.pivnet_products))
-        regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-vsphere-esxi-ubuntu-xenial-go_agent.tgz
+- name: pas-stemcell-aws
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.pivnet_products))
+    regexp: \[stemcells-ubuntu-xenial,(.*)\]light-bosh-stemcell-(.*)-aws-xen-hvm-ubuntu-xenial-go_agent.tgz
+- name: pas-stemcell-azure
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.pivnet_products))
+    regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-azure-hyperv-ubuntu-xenial-go_agent.tgz
+- name: pas-stemcell-vsphere
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.pivnet_products))
+    regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-vsphere-esxi-ubuntu-xenial-go_agent.tgz
 
--   name: harbor-stemcell-vsphere
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.pivnet_products))
-        regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-vsphere-esxi-ubuntu-xenial-go_agent.tgz
+- name: harbor-stemcell-vsphere
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.pivnet_products))
+    regexp: \[stemcells-ubuntu-xenial,(.*)\]bosh-stemcell-(.*)-vsphere-esxi-ubuntu-xenial-go_agent.tgz
 
--   name: platform-automation-pivnet
-    type: pivnet
-    check_every: 24h
-    source:
-        api_token: ((pivnet_token))
-        product_slug: platform-automation
-        product_version: 4\.(.*)
-        sort_by: semver
+- name: platform-automation-pivnet
+  type: pivnet
+  check_every: 24h
+  source:
+    api_token: ((pivnet_token))
+    product_slug: platform-automation
+    product_version: 5\.(.*)
+    sort_by: semver
 
--   name: platform-automation-tasks
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.platform_automation))
-        regexp: platform-automation-tasks-(.*).zip
+- name: platform-automation-tasks
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.platform_automation))
+    regexp: platform-automation-tasks-(.*).zip
 
--   name: platform-automation-image
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.platform_automation))
-        regexp: platform-automation-image-(.*).tgz
+- name: platform-automation-image
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.platform_automation))
+    regexp: platform-automation-image-skinny-(.*).tgz
 
 
--   name: platform-repo
-    type: git
-    source:
-        private_key: ((git_private_key.private_key))
-        uri: git@github.com:laidbackware/pas-pks-on-aws-azure-gcp-vsphere.git
-        branch: ((branch))
+- name: platform-repo
+  type: git
+  source:
+    private_key: ((git_private_key.private_key))
+    uri: git@github.com:laidbackware/pas-pks-on-aws-azure-gcp-vsphere.git
+    branch: ((branch))
 
--   name: uaa-cli-github-release
-    type: github-release
-    check_every: 24h
-    source:
-        owner: cloudfoundry-incubator
-        repository: uaa-cli
-        globs:
-        - uaa-linux-amd64-*
+- name: uaa-cli-github-release
+  type: github-release
+  check_every: 24h
+  source:
+    owner: cloudfoundry-incubator
+    repository: uaa-cli
+    globs:
+    - uaa-linux-amd64-*
 
--   name: oq-cli-github-release
-    type: github-release
-    check_every: 24h
-    source:
-        owner: Blacksmoke16
-        repository: oq
-        globs:
-        - oq-v*-linux-x86_64
+- name: oq-cli-github-release
+  type: github-release
+  check_every: 24h
+  source:
+    owner: Blacksmoke16
+    repository: oq
+    globs:
+    - oq-v*-linux-x86_64
 
--   name: jq-cli-github-release
-    type: github-release
-    check_every: 24h
-    source:
-        owner: stedolan
-        repository: jq
-        globs:
-        - jq-linux6*
+- name: jq-cli-github-release
+  type: github-release
+  check_every: 24h
+  source:
+    owner: stedolan
+    repository: jq
+    globs:
+    - jq-linux6*
 
--   name: s5cmd-github-release
-    type: github-release
-    check_every: 24h
-    source:
-        owner: peak
-        repository: s5cmd
-        globs:
-        - s5cmd_*_Linux-64bit.tar.gz
+- name: s5cmd-github-release
+  type: github-release
+  check_every: 24h
+  source:
+    owner: peak
+    repository: s5cmd
+    globs:
+    - s5cmd_*_Linux-64bit.tar.gz
 
--   name: uaa-cli
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.software))
-        regexp: uaa-linux-amd64-(.*)
+- name: uaa-cli
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.software))
+    regexp: uaa-linux-amd64-(.*)
 
--   name: mc-cli
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.software))
-        regexp: mc-(.*)
-        
--   name: oq-cli
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.software))
-        regexp: oq-v(.*)-linux-x86_64
+- name: mc-cli
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.software))
+    regexp: mc-(.*)
+    
+- name: oq-cli
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.software))
+    regexp: oq-v(.*)-linux-x86_64
 
--   name: jq-cli
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.software))
-        regexp: jq-linux(.*)
+- name: jq-cli
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.software))
+    regexp: jq-linux(.*)
 
--   name: s5cmd
-    type: s3
-    source:
-        <<: *s3-common
-        bucket: ((buckets.software))
-        regexp: s5cmd_(.*)_Linux-64bit.tar.gz
+- name: s5cmd
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.software))
+    regexp: s5cmd_(.*)_Linux-64bit.tar.gz
 
--   name: terraform
-    type: s3
-    source:
-      <<: *s3-common
-      bucket: ((buckets.software))
-      regexp: terraform-0.(.*)
+- name: terraform
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.software))
+    regexp: terraform-0.(.*)
 
--   name: vcenter-iso
-    type: s3
-    source:
-      <<: *s3-common
-      bucket: ((buckets.vmware_products))
-      regexp: VMware-VCSA-all-(.*).iso
+- name: vcenter-iso
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.vmware_products))
+    regexp: VMware-VCSA-all-(.*).iso
 
--   name: nsxt-ova
-    type: s3
-    source:
-      <<: *s3-common
-      bucket: ((buckets.vmware_products))
-      regexp: nsx-unified-appliance-(.*).ova
-      
+- name: nsxt-ova
+  type: s3
+  source:
+    <<: *s3-common
+    bucket: ((buckets.vmware_products))
+    regexp: nsx-unified-appliance-(.*).ova
+    
 jobs:
--   name: fetch-platform-automation
-    plan:
-    -   get: platform-automation-pivnet
-        trigger: true
-    -   in_parallel:
-        -   put: platform-automation-tasks
-            params:
-                file: platform-automation-pivnet/*tasks*.zip
-        -   put: platform-automation-image
-            params:
-                file: platform-automation-pivnet/*image*.tgz
+- name: fetch-platform-automation
+  plan:
+  - get: platform-automation-pivnet
+    trigger: true
+  - in_parallel:
+    - put: platform-automation-tasks
+      params:
+        file: platform-automation-pivnet/*tasks*.zip
+    - put: platform-automation-image
+      params:
+        file: platform-automation-pivnet/*image*.tgz
 
--   name: fetch-opsman
-    plan:
-    -   in_parallel:
-        -   get: platform-automation-image
-            params:
-                unpack: true
-        -   get: platform-automation-tasks
-            params:
-                unpack: true
-        -   get: platform-repo
-    -   task: prepare-tasks-with-secrets
-        <<: *prepare-tasks-with-secrets
+- name: fetch-opsman
+  plan:
+  - in_parallel:
+    - get: platform-automation-image
+      params:
+        unpack: true
+    - get: platform-automation-tasks
+      params:
+        unpack: true
+    - get: platform-repo
+  - task: prepare-tasks-with-secrets
+    <<: *prepare-tasks-with-secrets
 
-    -   task: download-opsman-image-aws
-        <<: *download-product-common
-        params:
-            CONFIG_FILE: download-config/opsman.yml
-            VARS_FILES: |
-                config/vars/download-vars/download-vars.yml 
-                config/vars/aws/common-vars.yml
-    -   put: opsman-product-aws
-        params:
-            file: downloaded-product/*
+  - task: download-opsman-image-aws
+    <<: *download-product-common
+    params:
+      CONFIG_FILE: download-config/opsman.yml
+      VARS_FILES: |
+        config/vars/download-vars/download-vars.yml 
+        config/vars/aws/common-vars.yml
+  - put: opsman-product-aws
+    params:
+      file: downloaded-product/*
 
-    -   task: download-opsman-image-azure
-        <<: *download-product-common
-        params:
-            CONFIG_FILE: download-config/opsman.yml
-            VARS_FILES: |
-                config/vars/download-vars/download-vars.yml 
-                config/vars/azure/common-vars.yml
-    -   put: opsman-product-azure
-        params:
-            file: downloaded-product/*
+  - task: download-opsman-image-azure
+    <<: *download-product-common
+    params:
+      CONFIG_FILE: download-config/opsman.yml
+      VARS_FILES: |
+        config/vars/download-vars/download-vars.yml 
+        config/vars/azure/common-vars.yml
+  - put: opsman-product-azure
+    params:
+      file: downloaded-product/*
 
-    -   task: download-opsman-image-pks-vsphere
-        <<: *download-product-common
-        params:
-            CONFIG_FILE: download-config/opsman.yml
-            VARS_FILES: |
-                config/vars/download-vars/download-vars.yml 
-                config/vars/vsphere/common-vars.yml
-    -   put: opsman-product-vsphere
-        params:
-            file: downloaded-product/*
+  - task: download-opsman-image-pks-vsphere
+    <<: *download-product-common
+    params:
+      CONFIG_FILE: download-config/opsman.yml
+      VARS_FILES: |
+        config/vars/download-vars/download-vars.yml 
+        config/vars/vsphere/common-vars.yml
+  - put: opsman-product-vsphere
+    params:
+      file: downloaded-product/*
 
--   name: fetch-pks
-    plan:
-    -   in_parallel:
-            -   get: platform-automation-image
-                params:
-                    unpack: true
-            -   get: platform-automation-tasks
-                params:
-                    unpack: true
-            -   get: platform-repo
-    -   task: prepare-tasks-with-secrets
-        <<: *prepare-tasks-with-secrets
+- name: fetch-pks
+  plan:
+  - in_parallel:
+      - get: platform-automation-image
+        params:
+          unpack: true
+      - get: platform-automation-tasks
+        params:
+          unpack: true
+      - get: platform-repo
+  - task: prepare-tasks-with-secrets
+    <<: *prepare-tasks-with-secrets
 
-    -   task: download-pks-cli
-        <<: *download-product-common
-        params:
-            CONFIG_FILE: download-config/pks-cli-linux.yml
-            VARS_FILES: config/vars/download-vars/download-vars.yml
-    -   put: pks-cli-linux
-        params:
-            file: downloaded-product/*pks-linux-amd64-*
+  - task: download-pks-cli
+    <<: *download-product-common
+    params:
+      CONFIG_FILE: download-config/pks-cli-linux.yml
+      VARS_FILES: config/vars/download-vars/download-vars.yml
+  - put: pks-cli-linux
+    params:
+      file: downloaded-product/*pks-linux-amd64-*
 
-    -   task: download-pks-product-and-aws-stemcell
-        <<: *download-product-common
+  - task: download-pks-product-and-aws-stemcell
+    <<: *download-product-common
+    params:
+      CONFIG_FILE: download-config/pks.yml
+      VARS_FILES: config/vars/download-vars/download-vars.yml config/vars/aws/install-pks-vars.yml
+    output_mapping: {downloaded-stemcell: pks-stemcell}
+  - in_parallel:
+      - put: pks-product
         params:
-            CONFIG_FILE: download-config/pks.yml
-            VARS_FILES: config/vars/download-vars/download-vars.yml config/vars/aws/install-pks-vars.yml
-        output_mapping: {downloaded-stemcell: pks-stemcell}
-    -   in_parallel:
-            -   put: pks-product
-                params:
-                    file: downloaded-product/*.pivotal
-            -   put: pks-stemcell-aws
-                params:
-                    file: pks-stemcell/*.tgz
+          file: downloaded-product/*.pivotal
+      - put: pks-stemcell-aws
+        params:
+          file: pks-stemcell/*.tgz
 
-    -   task: download-pks-azure-stemcell
-        <<: *download-product-common
-        params:
-            CONFIG_FILE: download-config/pks.yml
-            VARS_FILES: config/vars/download-vars/download-vars.yml config/vars/azure/install-pks-vars.yml
-        output_mapping: {downloaded-stemcell: pks-stemcell}
-    -   put: pks-stemcell-azure
-        params:
-            file: pks-stemcell/*.tgz
+  - task: download-pks-azure-stemcell
+    <<: *download-product-common
+    params:
+      CONFIG_FILE: download-config/pks.yml
+      VARS_FILES: config/vars/download-vars/download-vars.yml config/vars/azure/install-pks-vars.yml
+    output_mapping: {downloaded-stemcell: pks-stemcell}
+  - put: pks-stemcell-azure
+    params:
+      file: pks-stemcell/*.tgz
 
-    -   task: download-pks-vsphere-stemcell
-        <<: *download-product-common
-        params:
-            CONFIG_FILE: download-config/pks.yml
-            VARS_FILES: config/vars/download-vars/download-vars.yml config/vars/vsphere/install-pks-vars.yml
-        output_mapping: {downloaded-stemcell: pks-stemcell}
-    -   put: pks-stemcell-vsphere
-        params:
-            file: pks-stemcell/*.tgz
+  - task: download-pks-vsphere-stemcell
+    <<: *download-product-common
+    params:
+      CONFIG_FILE: download-config/pks.yml
+      VARS_FILES: config/vars/download-vars/download-vars.yml config/vars/vsphere/install-pks-vars.yml
+    output_mapping: {downloaded-stemcell: pks-stemcell}
+  - put: pks-stemcell-vsphere
+    params:
+      file: pks-stemcell/*.tgz
 
--   name: fetch-harbor
-    plan:
-    -   in_parallel:
-            -   get: platform-automation-image
-                params:
-                    unpack: true
-            -   get: platform-automation-tasks
-                params:
-                    unpack: true
-            -   get: platform-repo
-    -   task: prepare-tasks-with-secrets
-        <<: *prepare-tasks-with-secrets
-
-    -   task: download-harbor-product-and-vsphere-stemcell
-        <<: *download-product-common
+- name: fetch-harbor
+  plan:
+  - in_parallel:
+      - get: platform-automation-image
         params:
-            CONFIG_FILE: download-config/harbor.yml
-            VARS_FILES: |
-                config/vars/download-vars/download-vars.yml 
-                config/vars/vsphere/install-harbor-vars.yml
-        output_mapping: {downloaded-stemcell: harbor-stemcell}
-    -   in_parallel:
-            -   put: harbor-product
-                params:
-                    file: downloaded-product/*.pivotal
-            -   put: harbor-stemcell-vsphere
-                params:
-                    file: harbor-stemcell/*.tgz
-
-
--   name: fetch-pas
-    plan:
-    -   in_parallel:
-            -   get: platform-automation-image
-                params:
-                    unpack: true
-            -   get: platform-automation-tasks
-                params:
-                    unpack: true
-            -   get: platform-repo
-    -   task: prepare-tasks-with-secrets
-        <<: *prepare-tasks-with-secrets
-
-    -   task: download-pas-product-and-aws-stemcell
-        <<: *download-product-common
+          unpack: true
+      - get: platform-automation-tasks
         params:
-            CONFIG_FILE: download-config/pas.yml
-            VARS_FILES: |
-                config/vars/download-vars/download-vars.yml 
-                config/vars/aws/install-pas-vars.yml
-        output_mapping: {downloaded-stemcell: pas-stemcell}
-    -   in_parallel:
-            -   put: pas-product
-                params:
-                    file: downloaded-product/*.pivotal
-            -   put: pas-stemcell-aws
-                params:
-                    file: pas-stemcell/*.tgz
+          unpack: true
+      - get: platform-repo
+  - task: prepare-tasks-with-secrets
+    <<: *prepare-tasks-with-secrets
 
-    -   task: download-pas-azure-stemcell
-        <<: *download-product-common
+  - task: download-harbor-product-and-vsphere-stemcell
+    <<: *download-product-common
+    params:
+      CONFIG_FILE: download-config/harbor.yml
+      VARS_FILES: |
+        config/vars/download-vars/download-vars.yml 
+        config/vars/vsphere/install-harbor-vars.yml
+    output_mapping: {downloaded-stemcell: harbor-stemcell}
+  - in_parallel:
+      - put: harbor-product
         params:
-            CONFIG_FILE: download-config/pas.yml
-            VARS_FILES: |
-                config/vars/download-vars/download-vars.yml 
-                config/vars/azure/install-pas-vars.yml
-        output_mapping: {downloaded-stemcell: pas-stemcell}
-    -   put: pas-stemcell-azure
+          file: downloaded-product/*.pivotal
+      - put: harbor-stemcell-vsphere
         params:
-            file: pas-stemcell/*.tgz
+          file: harbor-stemcell/*.tgz
 
-    -   task: download-pas-vsphere-stemcell
-        <<: *download-product-common
-        params:
-            CONFIG_FILE: download-config/srt.yml
-            VARS_FILES: |
-                config/vars/download-vars/download-vars.yml 
-                config/vars/vsphere/install-pas-vars.yml
-        output_mapping: {downloaded-stemcell: pas-stemcell}
-    -   in_parallel:
-            -   put: pas-product-srt
-                params:
-                    file: downloaded-product/*.pivotal
-            -   put: pas-stemcell-vsphere
-                params:
-                    file: pas-stemcell/*.tgz
 
-    -   task: download-ncp-tile
-        <<: *download-product-common
+- name: fetch-pas
+  plan:
+  - in_parallel:
+      - get: platform-automation-image
         params:
-            CONFIG_FILE: download-config/ncp-tile.yml
-            VARS_FILES: |
-                config/vars/download-vars/download-vars.yml 
-                config/vars/vsphere/install-pas-vars.yml
-    -   in_parallel:
-            -   put: ncp-tile
-                params:
-                    file: downloaded-product/*.pivotal
+          unpack: true
+      - get: platform-automation-tasks
+        params:
+          unpack: true
+      - get: platform-repo
+  - task: prepare-tasks-with-secrets
+    <<: *prepare-tasks-with-secrets
 
--   name: fetch-vsphere
-    plan:
-    -   in_parallel:
-            -   get: platform-repo
+  - task: download-pas-product-and-aws-stemcell
+    <<: *download-product-common
+    params:
+      CONFIG_FILE: download-config/pas.yml
+      VARS_FILES: |
+        config/vars/download-vars/download-vars.yml 
+        config/vars/aws/install-pas-vars.yml
+    output_mapping: {downloaded-stemcell: pas-stemcell}
+  - in_parallel:
+      - put: pas-product
+        params:
+          file: downloaded-product/*.pivotal
+      - put: pas-stemcell-aws
+        params:
+          file: pas-stemcell/*.tgz
 
-    -   task: download-vcenter-iso
-        file: platform-repo/tasks/download-vmware-product/task.yml
-        params:
-            VMWUSER: ((vmware_download.username))
-            VMWPASS: ((vmware_download.password))
-            PRODUCT_DIRECTORY: vmware_vsan
-            FILE_REGEX: VMware-VCSA-all-.*\.iso
-    -   put: vcenter-iso
-        params:
-            file: downloaded-product/VMware-VCSA-all-*.iso
+  - task: download-pas-azure-stemcell
+    <<: *download-product-common
+    params:
+      CONFIG_FILE: download-config/pas.yml
+      VARS_FILES: |
+        config/vars/download-vars/download-vars.yml 
+        config/vars/azure/install-pas-vars.yml
+    output_mapping: {downloaded-stemcell: pas-stemcell}
+  - put: pas-stemcell-azure
+    params:
+      file: pas-stemcell/*.tgz
 
--   name: fetch-nsxt
-    plan:
-    -   in_parallel:
-            -   get: platform-repo
+  - task: download-pas-vsphere-stemcell
+    <<: *download-product-common
+    params:
+      CONFIG_FILE: download-config/srt.yml
+      VARS_FILES: |
+        config/vars/download-vars/download-vars.yml 
+        config/vars/vsphere/install-pas-vars.yml
+    output_mapping: {downloaded-stemcell: pas-stemcell}
+  - in_parallel:
+      - put: pas-product-srt
+        params:
+          file: downloaded-product/*.pivotal
+      - put: pas-stemcell-vsphere
+        params:
+          file: pas-stemcell/*.tgz
 
-    -   task: download-nsxt-ova
-        file: platform-repo/tasks/download-vmware-product/task.yml        
-        
+  - task: download-ncp-tile
+    <<: *download-product-common
+    params:
+      CONFIG_FILE: download-config/ncp-tile.yml
+      VARS_FILES: |
+        config/vars/download-vars/download-vars.yml 
+        config/vars/vsphere/install-pas-vars.yml
+  - in_parallel:
+      - put: ncp-tile
         params:
-            VMWUSER: ((vmware_download.username))
-            VMWPASS: ((vmware_download.password))
-            PRODUCT_DIRECTORY: vmware_nsx_t_data_center
-            FILE_REGEX: nsx-unified-appliance-.*\.ova
-    -   put: nsxt-ova
-        params:
-            file: downloaded-product/nsx-unified-appliance-*.ova
+          file: downloaded-product/*.pivotal
+
+- name: fetch-vsphere
+  plan:
+  - in_parallel:
+      - get: platform-repo
+
+  - task: download-vcenter-iso
+    file: platform-repo/tasks/download-vmware-product/task.yml
+    params:
+      VMWUSER: ((vmware_download.username))
+      VMWPASS: ((vmware_download.password))
+      PRODUCT_DIRECTORY: vmware_vsan
+      FILE_REGEX: VMware-VCSA-all-.*\.iso
+  - put: vcenter-iso
+    params:
+      file: downloaded-product/VMware-VCSA-all-*.iso
+
+- name: fetch-nsxt
+  plan:
+  - in_parallel:
+      - get: platform-repo
+
+  - task: download-nsxt-ova
+    file: platform-repo/tasks/download-vmware-product/task.yml    
+    
+    params:
+      VMWUSER: ((vmware_download.username))
+      VMWPASS: ((vmware_download.password))
+      PRODUCT_DIRECTORY: vmware_nsx_t_data_center
+      FILE_REGEX: nsx-unified-appliance-.*\.ova
+  - put: nsxt-ova
+    params:
+      file: downloaded-product/nsx-unified-appliance-*.ova
 
 # Fetch JQ first to allow 
--   name: fetch-jq
-    plan:
-    -   get: jq-cli-github-release
-    -   put: jq-cli
-        params:
-            file: jq-cli-github-release/jq-linux6*
+- name: fetch-jq
+  plan:
+  - get: jq-cli-github-release
+  - put: jq-cli
+    params:
+      file: jq-cli-github-release/jq-linux6*
 
--   name: fetch-base-tools
-    plan:
-    -   in_parallel:
-            -   get: uaa-cli-github-release
-            -   get: oq-cli-github-release
-            -   get: s5cmd-github-release
-            -   get: platform-repo
-            -   get: jq-cli
-                passed: ["fetch-jq"]
-                trigger: true
-    -   task: download-mc-cli
-        file: platform-repo/tasks/download-with-wget/task.yml        
-        params:
-            OUTPUT_FILE_NAME: mc
-            DOWNLOAD_LINK: https://dl.min.io/client/mc/release/linux-amd64/mc
-            VERSION_CHECK_COMMAND: "./mc -v | cut -c20-29 | sed 's/[^0-9]//g'"
-    -   put: mc-cli
-        params:
-            file: downloaded-product/mc-*
+- name: fetch-base-tools
+  plan:
+  - in_parallel:
+      - get: uaa-cli-github-release
+      - get: oq-cli-github-release
+      - get: s5cmd-github-release
+      - get: platform-repo
+      - get: jq-cli
+        passed: ["fetch-jq"]
+        trigger: true
+  - task: download-mc-cli
+    file: platform-repo/tasks/download-with-wget/task.yml    
+    params:
+      OUTPUT_FILE_NAME: mc
+      DOWNLOAD_LINK: https://dl.min.io/client/mc/release/linux-amd64/mc
+      VERSION_CHECK_COMMAND: "./mc -v | cut -c20-29 | sed 's/[^0-9]//g'"
+  - put: mc-cli
+    params:
+      file: downloaded-product/mc-*
  
-    -   task: download-terraform-cli
-        file: platform-repo/tasks/download-terraform/task.yml        
-    -   put: terraform
-        params:
-            file: downloaded-product/terraform-*
+  - task: download-terraform-cli
+    file: platform-repo/tasks/download-terraform/task.yml    
+  - put: terraform
+    params:
+      file: downloaded-product/terraform-*
 
-    -   put: uaa-cli
-        params:
-            file: uaa-cli-github-release/uaa-linux-amd64-*
+  - put: uaa-cli
+    params:
+      file: uaa-cli-github-release/uaa-linux-amd64-*
 
-    -   put: oq-cli
-        params:
-            file: oq-cli-github-release/oq-v*-linux-x86_64
-    
-    -   put: s5cmd
-        params:
-            file: s5cmd-github-release/s5cmd_*_Linux-64bit.tar.gz
+  - put: oq-cli
+    params:
+      file: oq-cli-github-release/oq-v*-linux-x86_64
+  
+  - put: s5cmd
+    params:
+      file: s5cmd-github-release/s5cmd_*_Linux-64bit.tar.gz

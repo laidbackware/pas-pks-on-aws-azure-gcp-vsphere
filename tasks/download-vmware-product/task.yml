@@ -3,10 +3,10 @@ platform: linux
 image_resource:
   type: docker-image
   source: 
-      repository: apnex/vmw-cli
-      tag: latest        
-      username: ((docker_hub.username))
-      password: ((docker_hub.password))
+    repository: apnex/vmw-cli
+    tag: latest        
+    username: ((docker_hub.username))
+    password: ((docker_hub.password))
 inputs:
 - name: platform-repo
 # - name: jq-cli

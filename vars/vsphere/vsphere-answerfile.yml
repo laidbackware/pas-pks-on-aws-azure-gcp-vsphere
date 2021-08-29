@@ -37,9 +37,9 @@ nested_hosts: # environment_tag will prepend the name
 
 nested_clusters: # You can add, remove or rename clusters in this section
     compute: # This name will by used in the nested vCenter
-        drs: True
+        drs: true
         # HA can only be enabled if there is are datastores accessible by all hosts.
-        ha_enabled: True
+        ha_enabled: true
         ha_admission_control_enabled: False
         ha_host_monitoring_enabled: disabled
         # Settings below are assigned to each host in the cluster

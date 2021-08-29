@@ -19,23 +19,24 @@ set -euxo pipefail
 # trap finish EXIT
 
 source ../ducc/1-vars.sh
+credhub_hostname=${DUCC_HOSTNAME_ENV:-$DUCC_HOSTNAME}
 # trap 'rm -rf "$TMPDIR"' EXIT
 
 ATTEMPT_COUNTER=0
 MAX_ATTEMPTS=12
 
-until $(curl -k --output /dev/null --silent --head --fail https://${DUCC_HOSTNAME}:9000/info); do
+until $(curl -k --output /dev/null --silent --head --fail https://${credhub_hostname}:9000/info); do
     if [ ${ATTEMPT_COUNTER} -eq ${MAX_ATTEMPTS} ];then
       echo "Max attempts reached"
       exit 1
     fi
     ATTEMPT_COUNTER=$(expr ${ATTEMPT_COUNTER} + 1)
     CURRENT_TRY=$(expr ${MAX_ATTEMPTS} - ${ATTEMPT_COUNTER})
-    echo "https://${DUCC_HOSTNAME}:9000/info not online yet, ${CURRENT_TRY} more retries left"
+    echo "https://${credhub_hostname}:9000/info not online yet, ${CURRENT_TRY} more retries left"
     sleep 5
 done
 
-credhub login --client-name credhub_client --client-secret ${DUCC_CREDHUB_CLIENT_SECRET} -s https://${DUCC_HOSTNAME}:9000 --skip-tls-validation
+credhub login --client-name credhub_client --client-secret ${DUCC_CREDHUB_CLIENT_SECRET} -s https://${credhub_hostname}:9000 --skip-tls-validation
 
 # download_attachmnents () {
 #     FILES=$(lpass show $1 |sed '1,2d')
@@ -77,12 +78,15 @@ NSXT_LICENSE_KEY="$(lpass show nsxt_license_key --notes)"
 AWS_JSON="{\"client_id\": \"${AWS_ACCESS_KEY}\", \"client_secret\": \"${AWS_SECRET_KEY}\"}"
 
 # Main section
-VMWARE_DOWNLOAD_USER="$(lpass show vmware-download --username)"
-VMWARE_DOWNLOAD_PASSWORD="$(lpass show vmware-download --password)"
+VMWARE_DOWNLOAD_USER="$(lpass show vmw-download --username)"
+VMWARE_DOWNLOAD_PASSWORD="$(lpass show vmw-download --password)"
+DOCKER_USER="$(lpass show docker-hub --username)"
+DOCKER_PASSWORD="$(lpass show docker-hub --password)"
 credhub set -n /concourse/main/git_private_key -t ssh -p "$GIT_PRIVATE_KEY"
 credhub set -n /concourse/main/pivnet_token -t password -w "$PIVNET_TOKEN"
 credhub set -n /concourse/main/s3_secret_access_key -t password -w minio123
 credhub set -n /concourse/main/vmware_download -t user -z "$VMWARE_DOWNLOAD_USER" -w "$VMWARE_DOWNLOAD_PASSWORD"
+credhub set -n /concourse/main/docker_hub -t user -z "$DOCKER_USER" -w "$DOCKER_PASSWORD"
 
 # AWS section
 FOUNDATION=aws

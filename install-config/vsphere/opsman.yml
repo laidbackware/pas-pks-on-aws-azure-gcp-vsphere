@@ -1,27 +1,27 @@
 ---
 opsman-configuration:
-    vsphere:
-        vcenter:
-            url: ((nested_vcenter.host_name)) #  vsphere-answers
-            username: administrator@vsphere.local
-            password: ((nested_vcenter_credentials.password)) #Credhub
-            datastore: ((nested_clusters.compute.nested_hosts_disks.0.datastore_prefix))-esx1 # vsphere-answers
-            #ca_cert: certificate
-            #host: example-host                     # vCenter host to deploy Ops Manager in
-            datacenter: ((nested_vcenter.datacenter)) # vsphere-answers
-            resource_pool: /((nested_vcenter.datacenter))/host/((nested_hosts.esx1.nested_cluster)) # vsphere-answers
-            # folder: /((nested_vcenter.datacenter))/vm # vsphere-answers
-            insecure: 1                            # default: 0 (secure); 1 (insecure)
-        disk_type: thin                          # example: thin|thick
-        private_ip: ((ops_manager_public_ip)) # tf-output
-        dns: ((dns1)) # vsphere-answers
-        ntp: ((ntp)) # vsphere-answers                    # example: ntp.ubuntu.com
-        ssh_public_key: ((opsman_ssh.public_key)) # Credhub          # for Ops Manager >= 2.3
-        hostname: ((ops_manager_public_ip)) # tf-output
-        network: ((management_subnet_name))  # tf-output
-        netmask: ((management_subnet_netmask)) # tf-output
-        gateway: ((management_subnet_gateway)) # tf-output
-        vm_name: ((foundation))-opsman  # common-vars
-        memory: 8                                # default: 8 GB
-        cpu: 1                                   # default: 1
-    
+  vsphere:
+    vcenter:
+      url: ((nested_vcenter.host_name)) #  vsphere-answers
+      username: administrator@vsphere.local
+      password: ((nested_vcenter_credentials.password)) #Credhub
+      datastore: ((nested_clusters.compute.nested_hosts_disks.0.datastore_prefix))-esx1 # vsphere-answers
+      #ca_cert: certificate
+      #host: example-host           # vCenter host to deploy Ops Manager in
+      datacenter: ((nested_vcenter.datacenter)) # vsphere-answers
+      resource_pool: /((nested_vcenter.datacenter))/host/((nested_hosts.esx1.nested_cluster)) # vsphere-answers
+      # folder: /((nested_vcenter.datacenter))/vm # vsphere-answers
+      insecure: 1              # default: 0 (secure); 1 (insecure)
+    disk_type: thin              # example: thin|thick
+    private_ip: ((ops_manager_public_ip)) # tf-output
+    dns: ((dns1)) # vsphere-answers
+    ntp: ((ntp)) # vsphere-answers          # example: ntp.ubuntu.com
+    ssh_public_key: ((opsman_ssh.public_key)) # Credhub      # for Ops Manager >= 2.3
+    hostname: ((ops_manager_public_ip)) # tf-output
+    network: ((management_subnet_name))  # tf-output
+    netmask: ((management_subnet_netmask)) # tf-output
+    gateway: ((management_subnet_gateway)) # tf-output
+    vm_name: ((foundation))-opsman  # common-vars
+    memory: 8                # default: 8 GB
+    cpu: 1                   # default: 1
+  

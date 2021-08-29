@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euxo pipefail
 
+minio_hostname=${DUCC_HOSTNAME_ENV:-localhost}
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 if ! command -v mc; then
@@ -21,12 +23,12 @@ if ! command -v yq; then
     mv ./yq* /usr/local/bin/yq
 fi
 
-mc config host add docker http://localhost:9080 minio minio123 --api "s3v4"
+mc config host add docker http://${minio_hostname}:9080 minio minio123 --api "s3v4"
 
 BUCKET_FILE=${SCRIPT_DIR}/vars/download-vars/download-vars.yml
-BUCKETS=$(yq r ${BUCKET_FILE} 'buckets.*' -p v | sed s/buckets.//)
+BUCKETS=$(yq e  '.buckets.*' ${BUCKET_FILE})
 
 for bucket in ${BUCKETS}
 do
-    mc mb ducc/${bucket} -p
+    mc mb docker/${bucket} -p
 done
