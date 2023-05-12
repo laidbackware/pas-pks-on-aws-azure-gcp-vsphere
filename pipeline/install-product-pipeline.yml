@@ -112,7 +112,8 @@ resources:
     source:
         <<: *s3-common
         bucket: platform-automation
-        regexp: platform-automation-image-(.*).tgz
+        regexp: ((platform_automation_image))-(.*)
+
 
 -   name: platform-repo
     type: git
@@ -160,51 +161,44 @@ resources:
 #         bucket: ((buckets.bosh_addons))
 #         regexp: amazon-cloudwatch-boshrelease-(.*).tgz
 
-# Binaries
-# -   name: terraform-11
-#     type: s3
-#     source:
-#       <<: *s3-common
-#       bucket: ((buckets.software))
-#       regexp: terraform-0.11.(.*)
 -   name: terraform
     type: s3
     source:
       <<: *s3-common
-      bucket: ((buckets.software))
-      regexp: terraform-0.13.(.*)
+      bucket: ((buckets.tools))
+      regexp: terraform-(.*)
 # -   name: yq
 #     type: s3
 #     source:
 #       <<: *s3-common
-#       bucket: ((buckets.software))
+#       bucket: ((buckets.tools))
 #       regexp: yq-(.*)
 -   name: oq
     type: s3
     source:
       <<: *s3-common
-      bucket: ((buckets.software))
+      bucket: ((buckets.tools))
       regexp: oq-(.*)
 
 -   name: jq
     type: s3
     source:
         <<: *s3-common
-        bucket: software
+        bucket: tools
         regexp: jq-linux(.*)
 
 -   name: s5cmd
     type: s3
     source:
         <<: *s3-common
-        bucket: software
+        bucket: tools
         regexp: s5cmd_(.*)_Linux-64bit.tar.gz
 
 -   name: nsxsearch
     type: s3
     source:
         <<: *s3-common
-        bucket: software
+        bucket: tools
         regexp: nsxsearch-linux-(.*)
 
 jobs:

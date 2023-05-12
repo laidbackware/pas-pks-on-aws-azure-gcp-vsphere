@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script to setup relevant Concourse teams
 
-source ../ducc/1-vars.sh
+source ../ducc/1-vars.inc.sh
 
 fly login -t main -c http://${DUCC_HOSTNAME}:8080 -u admin -p ${DUCC_CONCOURSE_ADMIN_PASSWORD} -n main
 

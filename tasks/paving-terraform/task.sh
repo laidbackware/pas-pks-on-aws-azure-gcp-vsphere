@@ -6,12 +6,15 @@ ROOT_DIR="$(pwd)"
 
 # Setup tools
 cp ${ROOT_DIR}/terraform/terraform-* /usr/local/bin/terraform
-chmod +x /usr/local/bin/terraform 
+chmod +x /usr/local/bin/terraform
 
 if [ ${IAAS_TYPE} = "vsphere" ]; then
     NSX_VAR_FILE=${ROOT_DIR}/config/vars/${FOUNDATION}/nsxt-answerfile.yml
-    if [ ! -f $NSX_VAR_FILE ]; then echo "${NSX_VAR_FILE} File not found!"; fi
-    export TF_VAR_nsxt_host="$(bosh int $NSX_VAR_FILE  --path /nsx_manager/hostname)"
+    if [ ! -f $NSX_VAR_FILE ]; then 
+        echo "${NSX_VAR_FILE} File not found!"
+        exit 1
+    fi
+    export TF_VAR_nsxt_host="$(bosh int ${NSX_VAR_FILE} --path /nsx_manager/hostname)"
     export TF_VAR_nsxt_username="$(bosh int <(echo ${CLOUD_CREDS}) --path /nsx_username)"
     export TF_VAR_nsxt_password="$(bosh int <(echo ${CLOUD_CREDS}) --path /nsx_password)"
     export TF_VAR_overlay_transport_zone_name="$(bosh int ${NSX_VAR_FILE} --path /transportzones/0/display_name)"
@@ -43,4 +46,4 @@ mkdir -p ${ROOT_DIR}/generated-tf-output/
 FILE_VERSION="$(date '+%Y%m%d.%H%M%S')"
 OUTPUT_FILE=${ROOT_DIR}/generated-tf-output/tf-output-${FILE_VERSION}.yml
 
-terraform output  stable_config_yaml > ${OUTPUT_FILE}
+terraform output stable_config_yaml > ${OUTPUT_FILE}

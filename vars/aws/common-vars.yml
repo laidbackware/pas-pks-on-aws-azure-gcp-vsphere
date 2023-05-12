@@ -1,3 +1,5 @@
 opsman_regex: ^2\.10\.\d+.*$
 opsman_pivnet_glob: "ops-manager-aws-*.yml"
 ntp_servers_string: 0.uk.pool.ntp.org
+
+platform_automation_image: platform-automation-image

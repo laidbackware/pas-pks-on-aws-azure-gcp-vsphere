@@ -1,4 +1,4 @@
 ---
 harbor_product_version_regex: ^2\..*\..*$
-harbor_stemcell_version: "621.84"
+harbor_stemcell_version: "621.463"
 iaas_type: vsphere

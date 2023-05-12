@@ -74,7 +74,7 @@ resources:
     source:
         <<: *s3-common
         bucket: platform-automation
-        regexp: platform-automation-image-(.*).tgz
+        regexp: ((platform_automation_image))-(.*)
 
 -   name: configuration
     type: git
@@ -87,21 +87,21 @@ resources:
     type: s3
     source:
       <<: *s3-common
-      bucket: ((buckets.software))
+      bucket: ((buckets.tools))
       regexp: yq-(.*)
 
 -   name: uaa-cli
     type: s3
     source:
         <<: *s3-common
-        bucket: software
+        bucket: tools
         regexp: uaa-linux-amd64-(.*)
 
 -   name: pks-cli-linux
     type: s3
     source:
         <<: *s3-common
-        bucket: software
+        bucket: tools
         regexp: \[pivotal-container-service,(.*)\]pks-linux-amd64-(.*)-build.(.*)
 
 

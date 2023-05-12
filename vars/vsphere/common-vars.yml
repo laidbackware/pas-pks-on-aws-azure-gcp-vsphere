@@ -12,3 +12,5 @@ disk_type: thin
 
 vsphere_version: "7.0"
 nsxt_version: "3.0"
+
+platform_automation_image: vsphere-platform-automation-image
